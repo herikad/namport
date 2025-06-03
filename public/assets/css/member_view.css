@@ -1,0 +1,63 @@
+
+/* post images list */
+
+.post_image_scroll {
+    overflow: scroll;
+    height: 645px;
+}
+.post_image_scroll::-webkit-scrollbar {
+    width: 5px;
+}
+
+.post_image_scroll::-webkit-scrollbar-thumb {
+    background: #b6b3b3;
+}
+
+.post_image_scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* follower following  */
+
+.follower_following_scroll {
+    overflow: scroll;
+    height: 645px;
+} 
+
+.follower_following_scroll::-webkit-scrollbar {
+    width: 5px;
+}
+
+.follower_following_scroll::-webkit-scrollbar-thumb {
+    background: #b6b3b3;
+}
+
+.follower_following_scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* liked member list */
+
+.liked_member_list_block {
+    overflow: scroll;
+    height: 645px;
+}
+.liked_member_list_block::-webkit-scrollbar {
+    width: 5px;
+}
+
+.liked_member_list_block::-webkit-scrollbar-thumb {
+    background: #b6b3b3;
+}
+
+.liked_member_list_block::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.no_image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    object-position: top;
+    display: flex;
+}

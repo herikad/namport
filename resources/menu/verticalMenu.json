@@ -1,0 +1,66 @@
+{
+  "menu": [
+    {
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "dashboard",
+      "submenu": [
+
+        {
+          "url": "/",
+          "name": "eCommerce",
+          "slug": "dashboard"
+        }
+      ]
+    },
+    {
+      "name": "Setup",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "setup",
+      "submenu": [
+
+        {
+          "url": "/setup/configuration/email-configuration/index",
+          "name": "Email Configuration",
+          "slug": "email_config"
+        },
+        {
+          "url": "/setup/configuration/email-template/index",
+          "name": "Email Template",
+          "slug": "email_config"
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "user_management",
+      "submenu": [
+
+        {
+          "url": "/user_management/role",
+          "name": "Role",
+          "slug": "role"
+        }
+
+      ]
+    },
+    {
+      "menuHeader": "Misc"
+    },
+    {
+      "url": "https://pixinvent.ticksy.com/",
+      "icon": "menu-icon tf-icons bx bx-support",
+      "name": "Support",
+      "slug": "support",
+      "target": "_blank"
+    },
+    {
+      "url": "https://demos.pixinvent.com/frest-html-admin-template/documentation/laravel-introduction.html",
+      "icon": "menu-icon tf-icons bx bx-file",
+      "name": "Documentation",
+      "slug": "documentation",
+      "target": "_blank"
+    }
+  ]
+}

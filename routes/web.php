@@ -17,6 +17,9 @@ use App\Repositories\MailRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\ClientOnboarding\ClientOnboardingController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +79,10 @@ Route::get('template', function () {
 
     return view('email_templates.common_mail_template', compact('view'));
 });
+
+Route::get('/client/onboarding/{profile_link?}', [ClientOnboardingController::class, 'client_onboarding_page'])->name('client-onboarding-page');
+Route::POST('/store/onboarding', [ClientOnboardingController::class, 'save_client_onboarding_page'])->name('store-client-onboarding-page');
+
 
 Route::get('/crm/{crm_slug}', [CommonController::class, 'crm_slug'])->name('crm_slug');
 

@@ -15,6 +15,7 @@ use Helper;
 use Exception;
 use Log;
 use DB;
+use Illuminate\Support\Facades\Storage;
 
 class ClientOnboardingController extends Controller
 {
@@ -46,9 +47,88 @@ class ClientOnboardingController extends Controller
    }
 
    public function save_client_onboarding_page(Request $request){
-    dd($request->all());
+    
     try {
+
+          $user_id = $request->user_id;
+            $base64Audio = $request->input('voice_profile');
+
+            // if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
+            //     [$metadata, $base64Data] = explode(',', $base64Audio);
+            //     preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
+            //     $extension = $matches[1] ?? 'webm';
+
+            //     $decoded = base64_decode($base64Data);
+            //     $filename = 'voice_' . time() . '.' . $extension;
+            //     $path = 'public/audio/' . $filename;
+
+            //     Storage::put($path, $decoded);
+            //     $publicPath = Storage::url('audio/' . $filename);
+
+            // }
+
+          if ($request->hasFile('profile_pic')) {
+
+                $old_data = ClientContacts::where('user_id', $user_id)->first();
+
+                $image_path = ('images/' . $old_data->profile_pic); // prev image path
+                $is_image_exist = Storage::disk(config('filesystems.default'))->exists($image_path);
+                if($is_image_exist){
+                    \Helper::deleteFile($image_path);
+                }
+
+                $file = $request->file('profile_pic');
+                $image_name = 'client' . '_' . time() . "." . $file->getClientOriginalExtension();
+                $destinationPath = ('images/client');
+                
+                Helper::upload_file($request->file('profile_pic'), $image_name, $destinationPath);
+
+                $image_name = 'client'.'/'.$image_name;
+
+                ClientContacts::where("user_id", $user_id)->update(array(
+                    'profile_pic' => $image_name,
+                ));
+
+                User::where('user_id', $user_id)->update(array(
+                    'profile_pic' => $image_name,
+                ));
+
+            }
+
             
+            $user = User::where('user_id', $request->user_id)->first();
+
+            if ($user) {
+                $user->email = $request->email;
+                $user->phone = $request->mobile_no;
+                $user->gender_type_term = $request->gender_type_term;
+                $user->updated_at = now();
+
+                $user->save();
+            }
+            $clientContact = ClientContact::where('user_id', $request->user_id)->first();
+
+            if ($clientContact) {
+                $clientContact->first_name = $request->first_name;
+                $clientContact->last_name = $request->last_name;
+                $clientContact->mobile_no = $request->mobile_no;
+                $clientContact->email = $request->email;
+                $clientContact->gender_term = $request->gender_type_term;
+                $clientContact->department = $request->department;
+                $clientContact->designation = $request->designation;
+                $clientContact->reporting_to = $request->reporting_to;
+                $clientContact->date_of_joining = $request->date_of_joining;
+                $clientContact->status_term = $request->status_term ?? 'Active';
+                $clientContact->description = $request->description ?? '';
+                $clientContact->role = $request->role;
+                $clientContact->updated_at = now();
+                $clientContact->save();
+            } 
+            dd("test");
+            
+            return redirect()->back()->with('success', 'Profile updated successfully.');
+
+
        
 
     } catch (\Throwable $th) {

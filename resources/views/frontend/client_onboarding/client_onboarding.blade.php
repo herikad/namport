@@ -60,6 +60,7 @@
   id="onboardingForm" method="POST" action="{{ route('store-client-onboarding-page') }}" enctype="multipart/form-data" novalidate >
   @csrf
     <!-- Step 1 -->
+     <input type="hidden" name="user_id" value="{{$user_details->user_id}}">
     <div class="step-card active">
       <div class="row mb-3">
         <div class="col-md-6">
@@ -101,7 +102,7 @@
                 <option value="">Select Reporting To</option>
                   @if (count($role_term))
                       @foreach ($reporting_to as $key => $reproting)
-                          <option value="{{ $term->value }}"
+                          <option value="{{ $reproting->client_contacts_id }}"
                               {{ isset($contact_details) && $contact_details->client_contacts_id == $reproting->client_contacts_id ? 'selected' : '' }}>
                               {{ $reproting->display_name }} </option>
                       @endforeach
@@ -114,7 +115,7 @@
                 <option value="">Select Role</option>
                   @if (count($role_term))
                       @foreach ($role_term as $key => $term)
-                          <option value="{{ $term->value }}"
+                          <option value="{{ $term->role_id }}"
                               {{ isset($contact_details) && $contact_details->role == $term->role_id ? 'selected' : '' }}>
                               {{ $term->display_name }} </option>
                       @endforeach

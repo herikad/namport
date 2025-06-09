@@ -397,76 +397,154 @@ class Helpers
         }
     }
 
-    public static function upload_file($file = "", $file_name = "", $file_name_to_store = "", $file_uploaded_path = "", $is_base64_file = false)
+    // public static function upload_file($file = "", $file_name = "", $file_name_to_store = "", $file_uploaded_path = "", $is_base64_file = false)
+    // {
+    //     $file_path = false;
+
+    //     try {
+
+    //         $default_storage = config('filesystems.default');
+
+    //         $default_storage_driver = config('filesystems.disks.' . $default_storage . '.driver');
+
+    //         if ($is_base64_file == false) {
+
+    //             $file_name = $file->getClientOriginalName();
+
+    //         }
+
+    //         if ($is_base64_file == true) {
+
+    //             $file_parts = explode(";base64,", $file);
+    //             $base64_file_content = base64_decode($file_parts[1]);
+    //         }
+
+    //         $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+
+    //         $base_name = basename($file_name, "." . $file_extension);
+
+    //         $file_name_to_store = $file_name_to_store . '.' . $file_extension;
+
+    //         if ($default_storage == 'public' || $default_storage == 'local') {
+
+    //             if (!File::isDirectory($file_uploaded_path)) {
+    //                 File::makeDirectory($file_uploaded_path, 0777, true, true);
+    //             }
+    //         }
+
+    //         $cloudResponse = false;
+
+    //         if ($is_base64_file == false) {
+
+    //             $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, file_get_contents($file->getRealPath()), 'public');
+
+    //         } else {
+
+    //             $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, $base64_file_content, 'public');
+
+    //         }
+
+    //         $file_path = $file_uploaded_path . '/' . $file_name_to_store;
+
+    //         if ($cloudResponse) {
+
+    //             if ($default_storage_driver != 'public') {
+
+    //                 $cloudFileUrl = Storage::url($file_path);
+
+    //                 $file_path = $cloudFileUrl;
+
+    //             }
+
+    //         }
+
+    //         Log::info("file_path success " . $file_path);
+
+    //         return $file_path;
+
+    //     } catch (\Throwable $th) {
+    //         Log::info("upload_file error " . print_r($th->getMessage(), true));
+    //         return $file_path;
+    //     }
+
+    // }
+
+        //  this handles both S3 and local both for uploading the file.
+    public static function upload_file($file, $name, $path)
     {
-        $file_path = false;
+        try 
+        {
 
-        try {
+            // Log::info("");
+            // Log::info("-----------------start------------------------");
+            // Log::info("file => ".print_r($file,true));
+            // Log::info("name => $name");
+            // Log::info("path => $path");
 
-            $default_storage = config('filesystems.default');
+            // if($file){
+            //     Log::info("EXIST_DONE");
+            // }else{
+            //     Lg::info("Not_Exist");
+            // }
 
-            $default_storage_driver = config('filesystems.disks.' . $default_storage . '.driver');
+            $image_name = $name;
 
-            if ($is_base64_file == false) {
+            $file_system = config('filesystems.default'); 
 
-                $file_name = $file->getClientOriginalName();
+            if ($file_system === 's3') {
 
-            }
+                $filePath = trim($path, '/') . '/' . $image_name; // no leading slash
+                try {
+                    if (is_string($file) && file_exists($file)) {
+                        $contents = file_get_contents($file);
+                    } elseif (is_object($file) && method_exists($file, 'getRealPath')) {
+                        $contents = file_get_contents($file->getRealPath());
+                    } else {
+                        throw new \Exception("Invalid file input type for S3 upload");
+                    }
 
-            if ($is_base64_file == true) {
+                    $isUploaded = Storage::disk('s3')->put($filePath, $contents, 'public');
 
-                $file_parts = explode(";base64,", $file);
-                $base64_file_content = base64_decode($file_parts[1]);
-            }
+                    Log::info("S3 upload " . ($isUploaded ? "successful" : "failed") . ": $filePath");
 
-            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-
-            $base_name = basename($file_name, "." . $file_extension);
-
-            $file_name_to_store = $file_name_to_store . '.' . $file_extension;
-
-            if ($default_storage == 'public' || $default_storage == 'local') {
-
-                if (!File::isDirectory($file_uploaded_path)) {
-                    File::makeDirectory($file_uploaded_path, 0777, true, true);
+                    return $isUploaded ? $image_name : null;
+                } catch (\Exception $ex) {
+                    Log::error("S3 upload exception: " . $ex->getMessage());
+                    $isUploaded = false;
                 }
-            }
 
-            $cloudResponse = false;
+                // $visibility = 'public';
 
-            if ($is_base64_file == false) {
+                // Log::info("s3_given_path => $filePath");
 
-                $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, file_get_contents($file->getRealPath()), 'public');
+                // $isUploaded = Storage::disk($file_system)->put($filePath, file_get_contents($file),$visibility);
 
+                // if ($isUploaded) {
+                //     Log::info("uploaded_s3_path => $filePath \n");
+                // }
             } else {
+                // Handle local storage logic
+                Log::info("local_storage...");
+                $destinationPath = public_path($path);
 
-                $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, $base64_file_content, 'public');
-
-            }
-
-            $file_path = $file_uploaded_path . '/' . $file_name_to_store;
-
-            if ($cloudResponse) {
-
-                if ($default_storage_driver != 'public') {
-
-                    $cloudFileUrl = Storage::url($file_path);
-
-                    $file_path = $cloudFileUrl;
-
+                // Ensure the destination directory exists
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
                 }
 
+                // Move file to local storage
+                $file->move($destinationPath, $image_name);
+                Log::info("local_saved_success_path => /$destinationPath/$image_name");
             }
 
-            Log::info("file_path success " . $file_path);
+            // Log::info("--------------------end---------------------");
+            // Log::info("");
 
-            return $file_path;
-
-        } catch (\Throwable $th) {
-            Log::info("upload_file error " . print_r($th->getMessage(), true));
-            return $file_path;
+            return $image_name;
+        } catch (Exception $exception) {
+            Log::info("upload_file error: " . $exception->getMessage());
+            return null;
         }
-
     }
 
     public static function deleteFile($img)

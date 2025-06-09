@@ -181,7 +181,7 @@
         <!-- Image preview (existing or selected) -->
        <img 
         id="profilePicPreview" 
-        src="{{ Storage::disk(config('filesystems.default'))->url('images/' . $contact_details->profile_pic) }}" 
+        src="{{ asset('images/' . $contact_details->profile_pic) }}" 
         class="mt-2 rounded" 
         style="width: 150px; height: 150px; object-fit: cover;">
       </div>

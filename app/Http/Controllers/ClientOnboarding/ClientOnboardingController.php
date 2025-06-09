@@ -19,9 +19,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ClientOnboardingController extends Controller
 {
+    
    public function client_onboarding_page($profile_link){
+    //  dd(Storage::disk(config('filesystems.default'))->url('images/client\client_1749383831.png' ));
+    // dd(asset('images/client/client_1749383831.png'));
+    //  C:\xampp\htdocs\Namport\namport\public\images\client\client_1749383831.png
         try {
-           
+          
             $client_contact_details = ClientContacts::where('profile_link', $profile_link)->first();
             
             if (isset($client_contact_details)) {
@@ -53,19 +57,21 @@ class ClientOnboardingController extends Controller
           $user_id = $request->user_id;
             $base64Audio = $request->input('voice_profile');
 
-            // if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
-            //     [$metadata, $base64Data] = explode(',', $base64Audio);
-            //     preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
-            //     $extension = $matches[1] ?? 'webm';
+            if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
+                [$metadata, $base64Data] = explode(',', $base64Audio);
+                preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
+                $extension = $matches[1] ?? 'webm';
 
-            //     $decoded = base64_decode($base64Data);
-            //     $filename = 'voice_' . time() . '.' . $extension;
-            //     $path = 'public/audio/' . $filename;
+                $decoded = base64_decode($base64Data);
+                $filename = 'voice_' . time() . '.' . $extension;
+                $path = 'public/audio/' . $filename;
 
-            //     Storage::put($path, $decoded);
-            //     $publicPath = Storage::url('audio/' . $filename);
+                Storage::disk('public')->put($path, $decoded);
+                $publicPath = Storage::url($path); 
+                // Storage::put($path, $decoded);
+                // $publicPath = Storage::url('audio/' . $filename);
 
-            // }
+            }
 
           if ($request->hasFile('profile_pic')) {
 
@@ -106,7 +112,7 @@ class ClientOnboardingController extends Controller
 
                 $user->save();
             }
-            $clientContact = ClientContact::where('user_id', $request->user_id)->first();
+            $clientContact = ClientContacts::where('user_id', $request->user_id)->first();
 
             if ($clientContact) {
                 $clientContact->first_name = $request->first_name;
@@ -124,15 +130,19 @@ class ClientOnboardingController extends Controller
                 $clientContact->updated_at = now();
                 $clientContact->save();
             } 
-            dd("test");
             
             return redirect()->back()->with('success', 'Profile updated successfully.');
 
 
        
 
-    } catch (\Throwable $th) {
-        //throw $th;
+    } catch (\Throwable $e) {
+        Log::error("Onboarding Save Failed: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json([
+            'status' => false,
+            'message' => 'Server Error',
+            'error' => $e->getMessage()
+        ], 500);
     }
    }
 }

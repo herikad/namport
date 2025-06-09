@@ -189,37 +189,35 @@
       </div>
     </div>
     <!-- Step 3 -->
-    <div class="step-card">
-      <div class="mb-3">
-        <label class="form-label">Voice Profile</label><br>
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#voiceProfileModal">
-          Create Voice Profile
-        </button>
-        <input type="hidden" name="voice_profile" id="voice_profile_data" required>
+  <div class="step-card">
+  <div class="mb-3">
+    <label class="form-label">Voice Profile</label><br>
+    <button type="button" class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#voiceProfileModal">
+      Create Voice Profile
+    </button>
+    <input type="hidden" name="voice_profile" id="voice_profile_data" required>
 
-        <div class="col-12 form-group" id="body-tags"></div>
-          <div class="form-group col-12 col-sm-12 mb-3">
-              <label>Role</label>
-
-              <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role">{{ $contact_details->role  }}</textarea>
-              <div class="ck_editor_validate_msg"></div>
-        </div>
-
-        <div class="col-12 form-group" id="body-tags"></div>
-          <div class="form-group col-12 col-sm-12 mb-3">
-              <label>Description</label>
-
-              <textarea id="description" class="form-control" data-element-ref="ckeditor" name="description">{{ $contact_details->description  }}</textarea>
-              <div class="ck_editor_validate_msg"></div>
-        </div>
-        
-
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="role" class="form-label">Role</label>
+        <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role" rows="6">{{ $contact_details->role }}</textarea>
+        <div class="ck_editor_validate_msg"></div>
       </div>
-      <div class="text-end">
-        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-        <button type="submit" class="btn btn-success">Submit</button>
+
+      <div class="col-md-6">
+        <label for="description" class="form-label">Description</label>
+        <textarea id="description" class="form-control" data-element-ref="ckeditor" name="description" rows="6">{{ $contact_details->description }}</textarea>
+        <div class="ck_editor_validate_msg"></div>
       </div>
     </div>
+  </div>
+
+  <div class="text-end mt-4">
+    <button type="button" class="btn btn-secondary me-2" onclick="prevStep()">Back</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+  </div>
+</div>
+
   </form>
 </div>
 </div>

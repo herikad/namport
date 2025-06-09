@@ -41,7 +41,7 @@
     <script src="{{ asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js') }}"></script>
-  
+
 @endsection
 
 
@@ -56,7 +56,7 @@
     <li class="nav-item"><button class="nav-link" type="button"> Profile Info</button></li>
     <li class="nav-item"><button class="nav-link" type="button"> Voice Profile</button></li>
   </ul>
- <form 
+ <form
   id="onboardingForm" method="POST" action="{{ route('store-client-onboarding-page') }}" enctype="multipart/form-data" novalidate >
   @csrf
     <!-- Step 1 -->
@@ -171,18 +171,17 @@
         <label class="form-label">Profile Picture</label>
 
         <!-- File input -->
-        <input 
-          type="file" 
-          class="form-control" 
+        <input
+          type="file"
+          class="form-control"
           name="profile_pic"
-          accept="image/*" 
+          accept="image/*"
           onchange="previewImage(event)">
 
         <!-- Image preview (existing or selected) -->
-       <img 
-        id="profilePicPreview" 
-        src="{{ asset('images/' . $contact_details->profile_pic) }}" 
-        class="mt-2 rounded" 
+       <img
+        id="profilePicPreview" src="{{ env('AWS_URL') . 'images/' . $contact_details->profile_pic }}"
+        class="mt-2 rounded"
         style="width: 150px; height: 150px; object-fit: cover;">
       </div>
       <div class="text-end">
@@ -324,5 +323,5 @@
   });
  $('.flatpickr').flatpickr();
 </script>
-    
+
 @endsection

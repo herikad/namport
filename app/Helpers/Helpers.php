@@ -469,79 +469,46 @@ class Helpers
 
     // }
 
-        //  this handles both S3 and local both for uploading the file.
+    //  this handles both S3 and local both for uploading the file.
     public static function upload_file($file, $name, $path)
     {
-        try 
-        {
-
-            // Log::info("");
-            // Log::info("-----------------start------------------------");
-            // Log::info("file => ".print_r($file,true));
-            // Log::info("name => $name");
-            // Log::info("path => $path");
-
-            // if($file){
-            //     Log::info("EXIST_DONE");
-            // }else{
-            //     Lg::info("Not_Exist");
-            // }
-
+        try {
             $image_name = $name;
-
-            $file_system = config('filesystems.default'); 
+            $file_system = config('filesystems.default');
 
             if ($file_system === 's3') {
+                $filePath = "$path/$image_name"; // No leading slash
+                Log::info("s3_given_path => $filePath");
 
-                $filePath = trim($path, '/') . '/' . $image_name; // no leading slash
-                try {
-                    if (is_string($file) && file_exists($file)) {
-                        $contents = file_get_contents($file);
-                    } elseif (is_object($file) && method_exists($file, 'getRealPath')) {
-                        $contents = file_get_contents($file->getRealPath());
-                    } else {
-                        throw new \Exception("Invalid file input type for S3 upload");
+                $isUploaded = Storage::disk($file_system)->put($filePath, file_get_contents($file));
+
+                if ($isUploaded) {
+                    try {
+                        Storage::disk($file_system)->setVisibility($filePath, 'public');
+                    } catch (\Exception $e) {
+                        Log::error("Unable to set visibility for file $filePath. " . $e->getMessage());
                     }
-
-                    $isUploaded = Storage::disk('s3')->put($filePath, $contents, 'public');
-
-                    Log::info("S3 upload " . ($isUploaded ? "successful" : "failed") . ": $filePath");
-
-                    return $isUploaded ? $image_name : null;
-                } catch (\Exception $ex) {
-                    Log::error("S3 upload exception: " . $ex->getMessage());
-                    $isUploaded = false;
+                    Log::info("uploaded_s3_path => $filePath");
+                } else {
+                    Log::error("S3 upload failed for $filePath");
                 }
 
-                // $visibility = 'public';
-
-                // Log::info("s3_given_path => $filePath");
-
-                // $isUploaded = Storage::disk($file_system)->put($filePath, file_get_contents($file),$visibility);
-
-                // if ($isUploaded) {
-                //     Log::info("uploaded_s3_path => $filePath \n");
-                // }
             } else {
                 // Handle local storage logic
                 Log::info("local_storage...");
                 $destinationPath = public_path($path);
 
-                // Ensure the destination directory exists
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
 
-                // Move file to local storage
                 $file->move($destinationPath, $image_name);
                 Log::info("local_saved_success_path => /$destinationPath/$image_name");
             }
 
-            // Log::info("--------------------end---------------------");
-            // Log::info("");
-
             return $image_name;
-        } catch (Exception $exception) {
+
+        } catch (\Exception $exception) {
             Log::info("upload_file error: " . $exception->getMessage());
             return null;
         }

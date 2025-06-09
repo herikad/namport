@@ -73,4 +73,9 @@ return [
     'currency_sign'             => [
         'usd' => '$',
     ],
+    'profile_progress_term'             => [
+        'not_started'   => 'Not Started',
+        'in_progress' => 'In Progress',
+        'done'   => 'Done',
+    ],
 ];

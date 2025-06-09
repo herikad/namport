@@ -12,6 +12,7 @@ use App\Http\Controllers\Setup\Configuration\AppSettingController;
 use App\Http\Controllers\Setup\Configuration\EmailConfigurationController;
 use App\Http\Controllers\Setup\Configuration\EmailTemplateController;
 use App\Http\Controllers\Setup\Configuration\GeneralSettingController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Repositories\MailRepository;
 use Illuminate\Http\Request;
@@ -198,6 +199,18 @@ Route::group(['middleware' => 'auth'], function () {
             });
 
         });
+
+        // department
+          
+        Route::group(['prefix' => 'department', 'as' => 'department.'], function () {
+            Route::get('/', [DepartmentController::class, 'index'])->name('index');
+            Route::post('department_json_list', [DepartmentController::class, 'department_json_list'])->name('department_json_list');
+            // Route::get('create/{id?}', [UserController::class, 'create'])->name('create');
+            // Route::post('store', [UserController::class, 'store'])->name('store');
+            Route::post('/status/update', [DepartmentController::class, 'status_update'])->name('status_update');
+        });
+
+       
 
     });
 

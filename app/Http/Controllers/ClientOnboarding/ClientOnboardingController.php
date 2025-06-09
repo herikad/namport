@@ -34,9 +34,9 @@ class ClientOnboardingController extends Controller
                 $data['departments']  = Department::where('client_id', $client_id)->where('is_active', 1)->pluck('department_name', 'department_id');
                 $data['designations'] = Designation::where('client_id', $client_id)->where('is_active', 1)->pluck('designation_name', 'designation_id');
                 $data['gender_term']  = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
-                $data['role_term']    = UsrRole::where('pb_usr_role.user_type_term', $data['user_details']->user_type_term)->where('is_active', 1)->get(['display_name', 'role_id']);
+                // $data['role_term']    = UsrRole::where('pb_usr_role.user_type_term', $data['user_details']->user_type_term)->where('is_active', 1)->get(['display_name', 'role_id']);
                 $data['reporting_to'] = ClientContacts::where('client_id', $client_id)->where('client_contacts_id', '!=', $client_contact_details->client_contacts_id)->get(['client_contacts_id', 'display_name']);
-                // dd($data);
+                $data['profile_link_term'] = config('custom.profile_progress_term');
 
                 return view('frontend.client_onboarding.client_onboarding', $data);
             }
@@ -130,7 +130,7 @@ class ClientOnboardingController extends Controller
 
         } catch (\Throwable $e) {
             Log::error("Onboarding Save Failed: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json([
+            return response()->json([   
                 'status'  => false,
                 'message' => 'Server Error',
                 'error'   => $e->getMessage(),

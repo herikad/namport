@@ -54,7 +54,7 @@
   <ul class="nav nav-pills mb-4 step-indicator">
     <li class="nav-item"><button class="nav-link active" type="button">Basic Info</button></li>
     <li class="nav-item"><button class="nav-link" type="button"> Profile Info</button></li>
-    <li class="nav-item"><button class="nav-link" type="button"> Voice Profile</button></li>
+    <li class="nav-item"><button class="nav-link" type="button"> Voice Profile & Role</button></li>
   </ul>
  <form
   id="onboardingForm" method="POST" action="{{ route('store-client-onboarding-page') }}" enctype="multipart/form-data" novalidate >
@@ -100,7 +100,7 @@
           <label class="form-label">Reporting To</label>
             <select name="reporting_to" class="select2 form-control"  id="reporting_to" data-element-ref="select2">
                 <option value="">Select Reporting To</option>
-                  @if (count($role_term))
+                  @if (count($reporting_to))
                       @foreach ($reporting_to as $key => $reproting)
                           <option value="{{ $reproting->client_contacts_id }}"
                               {{ isset($contact_details) && $contact_details->client_contacts_id == $reproting->client_contacts_id ? 'selected' : '' }}>
@@ -110,14 +110,13 @@
             </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Role</label>
-             <select name="role" class="select2 form-control"  id="role" data-element-ref="select2">
-                <option value="">Select Role</option>
-                  @if (count($role_term))
-                      @foreach ($role_term as $key => $term)
-                          <option value="{{ $term->role_id }}"
-                              {{ isset($contact_details) && $contact_details->role == $term->role_id ? 'selected' : '' }}>
-                              {{ $term->display_name }} </option>
+          <label class="form-label">Profile Status</label>
+             <select name="profile_status_term" class="select2 form-control"  id="profile_status_term" data-element-ref="select2">
+                  @if (count($profile_link_term))
+                      @foreach ($profile_link_term as $key => $value)
+                          <option value="{{ $key }}"
+                              {{ isset($contact_details) && $contact_details->profile_status_term == $key ? 'selected' : '' }}>
+                              {{ $value }} </option>
                       @endforeach
                   @endif
             </select>
@@ -197,6 +196,24 @@
           Create Voice Profile
         </button>
         <input type="hidden" name="voice_profile" id="voice_profile_data" required>
+
+        <div class="col-12 form-group" id="body-tags"></div>
+          <div class="form-group col-12 col-sm-12 mb-3">
+              <label>Role</label>
+
+              <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role">{{ $contact_details->role  }}</textarea>
+              <div class="ck_editor_validate_msg"></div>
+        </div>
+
+        <div class="col-12 form-group" id="body-tags"></div>
+          <div class="form-group col-12 col-sm-12 mb-3">
+              <label>Description</label>
+
+              <textarea id="description" class="form-control" data-element-ref="ckeditor" name="description">{{ $contact_details->description  }}</textarea>
+              <div class="ck_editor_validate_msg"></div>
+        </div>
+        
+
       </div>
       <div class="text-end">
         <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
@@ -241,6 +258,7 @@
 
 @section('page-script')
 <!-- <script src="{{ asset('assets/js/jquery.min.js') }}"></script> -->
+ <script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
 <script>
   let steps = document.querySelectorAll('.step-card');
   let navLinks = document.querySelectorAll('.step-indicator .nav-link');
@@ -323,5 +341,10 @@
   });
  $('.flatpickr').flatpickr();
 </script>
-
+<script>
+    CKEDITOR.replaceAll(function(textarea, config) {
+      config.height = 200;
+      return true; // return true to replace this textarea
+    });
+</script>
 @endsection

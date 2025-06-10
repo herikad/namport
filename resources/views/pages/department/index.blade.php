@@ -27,7 +27,7 @@
 
                         {{-- @if (@$page_action->is_create == 1) --}}
                             <div class="d-flex justify-content-end flex-md-row flex-column mb-3 mb-md-0">
-                                <a class="btn btn-primary  md-1 float-right" href="{{route('setup.department.department_json_list')}}"><i class="bx bx-plus"></i>Add</a>
+                                <a class="btn btn-primary  md-1 float-right" href="{{route('setup.department.create')}}"><i class="bx bx-plus"></i>Add</a>
                             </div>
                         {{-- @endif --}}
                     </div>

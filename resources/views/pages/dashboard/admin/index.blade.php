@@ -67,16 +67,16 @@
                         <div class="d-flex justify-content-between">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="avatar">
-                                    <a href="{{ route('members.index') }}">
+                                    <a href="#">
                                         <span class="avatar-initial bg-label-dark rounded-circle"><i
                                                 class="bx bx-user fs-4"></i></span>
                                     </a>
                                 </div>
                                 <div class="card-info">
-                                    <a href="{{ route('members.index') }}">
+                                    <a href="#">
                                         <h5 class="card-title mb-0 me-2">20</h5>
                                     </a>
-                                    <a class="primary-text-color h6" href="{{ route('members.index') }}">Projects</a>
+                                    <a class="primary-text-color h6" href="#">Projects</a>
                                 </div>
                             </div>
                         </div>

@@ -97,7 +97,7 @@
 
                             var html = '';
 
-                                // html += ' <a title="View" href="' + baseUrl + 'members/view/' + row.member_id + '" class="text-end"><i class="bx bx-show theme-text-secondary bx-sm mr-50"  ></i></a>';
+                                html += ' <a title="Edit" href="' + baseUrl + 'setup/department/create/' + row.department_id + '" class="text-end"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"  ></i></a>';
 
                             return html;
                         }

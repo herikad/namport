@@ -22,6 +22,7 @@ use File;
 use Illuminate\Support\Facades\Mail;
 use Log;
 use Storage;
+use Illuminate\Support\Facades\Crypt;
 
 class Helpers
 {
@@ -1175,5 +1176,13 @@ class Helpers
             return $datetime;
 
         }
+    }
+
+    public static function enc($value) {
+        return Crypt::encrypt($value);
+    }
+
+    public static function dnc($value) {
+       return Crypt::decrypt($value);
     }
 }

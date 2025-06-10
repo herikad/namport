@@ -204,8 +204,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => 'department', 'as' => 'department.'], function () {
             Route::get('/', [DepartmentController::class, 'index'])->name('index');
             Route::post('department_json_list', [DepartmentController::class, 'department_json_list'])->name('department_json_list');
-            // Route::get('create/{id?}', [UserController::class, 'create'])->name('create');
-            // Route::post('store', [UserController::class, 'store'])->name('store');
+            Route::get('create/{id?}', [DepartmentController::class, 'create'])->name('create');
+            Route::post('store', [DepartmentController::class, 'store'])->name('store');
             Route::post('/status/update', [DepartmentController::class, 'status_update'])->name('status_update');
         });
 

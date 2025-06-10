@@ -17,13 +17,9 @@ class ClientOnboardingController extends Controller
 
     public function client_onboarding_page($profile_link)
     {
-        //  dd(Storage::disk(config('filesystems.default'))->url('images/client\client_1749383831.png' ));
-        // dd(asset('images/client/client_1749383831.png'));
-        //  C:\xampp\htdocs\Namport\namport\public\images\client\client_1749383831.png
         try {
-
-            $client_contact_details = ClientContacts::where('profile_link', $profile_link)->first();
-
+            $profile_link = Helper::dnc($profile_link);
+            $client_contact_details = ClientContacts::where('user_id', $profile_link)->first();
             if (isset($client_contact_details)) {
 
                 $client_id = $client_contact_details->client_id;
@@ -39,10 +35,9 @@ class ClientOnboardingController extends Controller
                 $data['profile_link_term'] = config('custom.profile_progress_term');
 
                 return view('frontend.client_onboarding.client_onboarding', $data);
-            }
-
+            } 
         } catch (\Throwable $th) {
-            //throw $th;
+            return redirect()->route('login')->with("error", "Sorry, Please contact to admin!");
         }
     }
 

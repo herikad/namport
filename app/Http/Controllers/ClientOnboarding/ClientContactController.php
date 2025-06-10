@@ -124,7 +124,7 @@ class ClientContactController extends Controller
             $contact->mobile_no     = $request->mobile_no;
             $contact->email         = $request->email;
             $contact->display_name  = $user->display_name;
-            $contact->profile_link  = $user->user_id;
+            $contact->profile_link  = url('/client/onboarding/' . Helper::enc($user->user_id));
             // Generate the unique employee ID using your helper
             $contact->id_no         = $request->id_no;
             $contact->created_by    = $auth_user ? $auth_user->association_id : null;
@@ -165,7 +165,7 @@ class ClientContactController extends Controller
                         'MAIL_SUBJECT' => "Welcome to Namport!", // As discussed in previous response
                         'user_name'    => $user->display_name,
                         // Generate the unique setup URL using the token
-                        'LINK_URL'     => url('/client/onboarding/' . $user->user_id),
+                        'LINK_URL'     => url('/client/onboarding/' . Helper::enc($user->user_id)),
                     ];
 
                     MailRepository::replace_email_template(

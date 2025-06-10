@@ -11,14 +11,7 @@ return[
         'general_settings' => 'general_settings',
         'dashboard' => 'dashboard',
         'app_setting' => 'app_setting',
-        'club-manager' => 'club-manager',
-        'club' => 'club',
-        'package' => 'package',
-        'court' => 'court',
-        'claim_request' => 'claim_request',
-        'general_club' => 'general_club',
-        'rule' => 'rule',
-        'assign_club_subscription' => 'assign_club_subscription'
+        'client_contacts' => 'client_contacts',
       ]
 
 ];

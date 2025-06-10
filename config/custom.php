@@ -38,6 +38,7 @@ return [
         'WELCOME_MAIL'             => 'WELCOME_MAIL',
         'RESET_PASSWORD'           => 'RESET_PASSWORD',
         'RESEND_VERIFICATION_MAIL' => 'RESEND_VERIFICATION_MAIL',
+        'WELCOME_CLIENT_CONTACT' => 'WELCOME_CLIENT_CONTACT',
     ],
     'image_base_url'            => config('filesystems.default') == 's3' ? '' : '',
     'term_category'             => [
@@ -65,7 +66,7 @@ return [
     ],
     'user_type_term'            => [
         'super_admin' => 'super_admin',
-        'member'      => 'member',
+        'client_contact'      => 'client_contact',
     ],
     'default_role'              => [
         'super_admin' => 'Super Admin',

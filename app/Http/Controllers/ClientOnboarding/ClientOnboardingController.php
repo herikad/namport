@@ -62,7 +62,7 @@ class ClientOnboardingController extends Controller
 
             //     $decoded  = base64_decode($base64Data);
             //     $filename = 'voice_' . time() . '.' . $extension;
-            //     $path     = 'public/audio/' . $filename;
+            //     $path     = 'images/client_contact/audio/' . $filename;
 
             //     Storage::disk('public')->put($path, $decoded);
             //     $publicPath = Storage::url($path);
@@ -75,15 +75,15 @@ class ClientOnboardingController extends Controller
 
                 $old_data = ClientContacts::where('user_id', $user_id)->first();
 
-                $image_path     = ('images/' . $old_data->profile_pic); // prev image path
+                $image_path     = ('images/client_contact/profile' . $old_data->profile_pic); // prev image path
                 $is_image_exist = Storage::disk(config('filesystems.default'))->exists($image_path);
                 if ($is_image_exist) {
                     \Helper::deleteFile($image_path);
                 }
 
                 $file            = $request->file('profile_pic');
-                $image_name      = 'client' . '_' . time() . "." . $file->getClientOriginalExtension();
-                $destinationPath = ('images/client_contact');
+                $image_name      = 'profile_'. time() . "." . $file->getClientOriginalExtension();
+                $destinationPath = ('images/client_contact/profile');
 
                 \Helper::upload_file($request->file('profile_pic'), $image_name, $destinationPath);
 
@@ -130,7 +130,7 @@ class ClientOnboardingController extends Controller
 
         } catch (\Throwable $e) {
             Log::error("Onboarding Save Failed: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json([   
+            return response()->json([
                 'status'  => false,
                 'message' => 'Server Error',
                 'error'   => $e->getMessage(),

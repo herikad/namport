@@ -3,28 +3,18 @@
 namespace App\Helpers;
 
 use App\Models\AppSetting;
-use App\Models\BookingSlot;
 use App\Models\Club;
-use App\Models\ClubUserSubscription;
 use App\Models\Notification;
 use App\Models\NotificationUsers;
-use App\Models\PackagePrice;
-use App\Models\PersonalAccessToken;
-use App\Models\SocComment;
-use App\Models\SocPost;
-use App\Models\Subscription;
 use App\Models\Term;
 use App\Models\TermCategory;
 use App\Models\User;
-use App\Models\UserSubscription;
 use App\Models\UsrRights;
 use App\Models\UsrRoleright;
 use App\Models\UsrUserrole;
+use App\Models\ClientContacts;
 use App\Repositories\CommonRepository;
-use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Config;
-use DateInterval;
 use DateTime;
 use DateTimeZone;
 use DB;
@@ -483,11 +473,11 @@ class Helpers
                 $isUploaded = Storage::disk($file_system)->put($filePath, file_get_contents($file));
 
                 if ($isUploaded) {
-                    try {
-                        Storage::disk($file_system)->setVisibility($filePath, 'public');
-                    } catch (\Exception $e) {
-                        Log::error("Unable to set visibility for file $filePath. " . $e->getMessage());
-                    }
+                    // try {
+                    //     Storage::disk($file_system)->setVisibility($filePath, 'public');
+                    // } catch (\Exception $e) {
+                    //     Log::error("Unable to set visibility for file $filePath. " . $e->getMessage());
+                    // }
                     Log::info("uploaded_s3_path => $filePath");
                 } else {
                     Log::error("S3 upload failed for $filePath");

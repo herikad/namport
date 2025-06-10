@@ -776,7 +776,7 @@
     }
 
     function convertUtcDateTimeToLocalDateTime(utcTime, format = '') {
-        return moment.utc(utcTime).local().format(format != '' ? format : 'MM/DD/YYYY HH:mm');
+        return moment.utc(utcTime).local().format(format != '' ? format : 'DD/MM/YYYY HH:mm');
 
     }
 

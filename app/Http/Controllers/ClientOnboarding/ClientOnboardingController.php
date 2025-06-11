@@ -119,7 +119,7 @@ class ClientOnboardingController extends Controller
                 $clientContact->responsibilities = $request->responsibilities ?? '';
                 $clientContact->role            = $request->role;
                 $clientContact->updated_at      = now();
-                $clientContact->profile_status_term  = config('custom.profile_progress_term.done'); // 'done' if the voice_profile recorded
+                $clientContact->profile_status_term  = config('custom.profile_status_term.done'); // 'done' if the voice_profile recorded
                 $clientContact->save();
             }
 

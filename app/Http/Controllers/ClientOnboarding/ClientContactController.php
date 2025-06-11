@@ -145,7 +145,7 @@ class ClientContactController extends Controller
                 // Generate the unique employee ID using your helper
                 $contact->id_no         = $request->id_no;
                 $contact->created_by    = $auth_user ? $auth_user->association_id : null;
-                $contact->profile_status_term  = config('custom.profile_progress_term.in_progress');
+                $contact->profile_status_term  = config('custom.profile_status_term.in_progress');
                 $contact->save(); // Save the ClientContact record
 
                 Log::info("ClientContact created with ID: " . $contact->id . " and Employee ID: " . $contact->id_no);

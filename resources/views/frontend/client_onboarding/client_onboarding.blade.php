@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Gender</label>
                             <select name="gender_type_term" class="select2 form-control" id="gender_type_term"
                                 data-element-ref="select2">
@@ -163,7 +163,7 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Reporting To</label>
                             <select name="reporting_to" class="select2 form-control" id="reporting_to"
                                 data-element-ref="select2">

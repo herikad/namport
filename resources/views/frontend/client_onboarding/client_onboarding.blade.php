@@ -171,7 +171,7 @@
                                 @if (count($reporting_to))
                                     @foreach ($reporting_to as $key => $reproting)
                                         <option value="{{ $reproting->client_contacts_id }}"
-                                            {{ isset($contact_details) && $contact_details->client_contacts_id == $reproting->client_contacts_id ? 'selected' : '' }}>
+                                            {{ isset($contact_details) && $contact_details->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
                                             {{ $reproting->display_name }} </option>
                                     @endforeach
                                 @endif
@@ -278,8 +278,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea id="description" class="form-control" data-element-ref="ckeditor" name="description" rows="6">{{ $contact_details->description }}</textarea>
+                                <label for="responsibilities" class="form-label">Responsibilities</label>
+                                <textarea id="responsibilities" class="form-control" data-element-ref="ckeditor" name="responsibilities" rows="6">{{ $contact_details->responsibilities }}</textarea>
                                 <div class="ck_editor_validate_msg"></div>
                             </div>
                         </div>
@@ -402,7 +402,7 @@
                     mediaRecorder.stop();
                     startBtn.textContent = "Start Recording";
                     startBtn.disabled = false;
-                }, 5000);
+                }, 10000);
             } catch (err) {
                 alert("Microphone access denied or not available.");
             }

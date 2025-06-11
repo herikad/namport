@@ -37,13 +37,13 @@ $page_action = Helper::pageAction(config('pages.form_type.client_contacts'));
                                 <th style="display:none;"></th>
                                 <th>#</th>
                                 <th>Profile</th>
-                                <th>Full Name</th>
+                                <th>Name</th>
                                 <th>Email</th>
                                 <th>Mobile No.</th>
                                 <th>Added On</th>
                                 <th>Date Of Joining</th>
                                 <th>Status</th>
-                                {{-- <th>Action</th> --}}
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>

@@ -103,41 +103,35 @@
                     {
                         "data": "is_active",
                         "render": function(data, type, row) {
-
                             var html = '';
-                            if (page_action.is_update == 1) {
-                                html +=
-                                    '<div class="custom-control custom-switch"><input type="checkbox" data-id="' +
-                                    row.client_contacts_id +
-                                    '" class="custom-control-input contact_active_status" id="default-switch_' +
-                                    row.client_contacts_id + '" ' + (row.is_active == '1' ?
-                                        'checked' : '') +
-                                    '> <label class="custom-control-label" for="default-switch_' +
-                                    row
-                                    .client_contacts_id + '"></label></div>';
-                            } else {
-                                html +=
-                                    `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
-                            }
+                            html += ` <div class="switches-stacked" title="${(parseInt(row.is_active) == 1 ? 'Click to Deactivate' : ' Click to Activate')}">
+                                        <label class="switch">
+                                            <input type="checkbox" class="switch-input contact_active_status" name="switches-stacked-radio" data-id="${row.client_contacts_id}"  ${(parseInt(row.is_active) == 1 ? 'checked' : '')}  />
+                                            <span class="switch-toggle-slider">
+                                            <span class="switch-on"></span>
+                                            <span class="switch-off"></span>
+                                            </span>
+                                        </label></div>`;
+
                             return html;
                         }
                     },
-                    // {
-                    //     "data": "client_contacts_id",
-                    //     "render": function(data, type, row) {
+                    {
+                        "data": "client_contacts_id",
+                        "render": function(data, type, row) {
 
-                    //         var icon_delete = '';
-                    //         if (page_action.is_delete == 1) {
-                    //             var icon_delete =
-                    //                 `<i class="bx bx-trash bx-sm text-primary delete_contact" client_contacts_id ="${row.client_contacts_id }" ></i>`;
-                    //         } else {
-                    //             icon_delete +=
-                    //                 `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
-                    //         }
+                            var icon_delete = '';
+                            if (page_action.is_delete == 1) {
+                                var icon_delete =
+                                    `<i class="bx bx-trash bx-sm text-danger delete_contact" client_contacts_id ="${row.client_contacts_id }" ></i>`;
+                            } else {
+                                icon_delete +=
+                                    `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
+                            }
 
-                    //         return icon_delete;
-                    //     }
-                    // }
+                            return icon_delete;
+                        }
+                    }
 
                 ],
                 "order": [

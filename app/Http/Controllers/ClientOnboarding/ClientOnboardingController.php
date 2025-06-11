@@ -35,7 +35,7 @@ class ClientOnboardingController extends Controller
                 $data['profile_link_term'] = config('custom.profile_progress_term');
 
                 return view('frontend.client_onboarding.client_onboarding', $data);
-            } 
+            }
         } catch (\Throwable $th) {
             return redirect()->route('login')->with("error", "Sorry, Please contact to admin!");
         }
@@ -50,21 +50,21 @@ class ClientOnboardingController extends Controller
             $user_id     = $request->user_id;
             $base64Audio = $request->input('voice_profile');
 
-            // if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
-            //     [$metadata, $base64Data] = explode(',', $base64Audio);
-            //     preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
-            //     $extension = $matches[1] ?? 'webm';
+            if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
+                [$metadata, $base64Data] = explode(',', $base64Audio);
+                preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
+                $extension = $matches[1] ?? 'webm';
 
-            //     $decoded  = base64_decode($base64Data);
-            //     $filename = 'voice_' . time() . '.' . $extension;
-            //     $path     = 'images/client_contact/audio/' . $filename;
+                $decoded  = base64_decode($base64Data);
+                $filename = 'voice_' . time() . '.' . $extension;
+                $path     = 'images/client_contact/voice_profile/' . $filename;
 
-            //     Storage::disk('public')->put($path, $decoded);
-            //     $publicPath = Storage::url($path);
-            //     // Storage::put($path, $decoded);
-            //     // $publicPath = Storage::url('audio/' . $filename);
+                Storage::disk(config('filesystems.default'))->put($path, $decoded);
+                $publicPath = Storage::url($path);
+                // Storage::put($path, $decoded);
+                // $publicPath = Storage::url('audio/' . $filename);
 
-            // }
+            }
 
             if ($request->hasFile('profile_pic')) {
 
@@ -107,6 +107,7 @@ class ClientOnboardingController extends Controller
             if ($clientContact) {
                 $clientContact->first_name      = $request->first_name;
                 $clientContact->last_name       = $request->last_name;
+                $clientContact->display_name    = $request->first_name . ' ' . $request->last_name;
                 $clientContact->mobile_no       = $request->mobile_no;
                 $clientContact->email           = $request->email;
                 $clientContact->gender_term     = $request->gender_type_term;
@@ -115,7 +116,7 @@ class ClientOnboardingController extends Controller
                 $clientContact->reporting_to    = $request->reporting_to;
                 $clientContact->date_of_joining = $request->date_of_joining;
                 $clientContact->status_term     = $request->status_term ?? 'Active';
-                $clientContact->description     = $request->description ?? '';
+                $clientContact->responsibilities = $request->responsibilities ?? '';
                 $clientContact->role            = $request->role;
                 $clientContact->updated_at      = now();
                 $clientContact->save();

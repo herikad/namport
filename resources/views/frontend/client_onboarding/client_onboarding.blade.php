@@ -244,8 +244,7 @@
                         <label class="form-label">Profile Picture</label>
 
                         <!-- File input -->
-                        <input type="file" class="form-control" name="profile_pic" accept="image/*"
-                            onchange="previewImage(event)">
+                        <input type="file" class="form-control" id="profileInput" name="profile_pic" accept="image/*">
 
                         <!-- Image preview (existing or selected) -->
                         @if ($contact_details->profile_pic)
@@ -263,9 +262,21 @@
                 <!-- Step 3 -->
                 <div class="step-card">
                     <div class="mb-3">
+
+
                         <label class="form-label">Voice Profile</label><br>
+                        @if(!empty($contact_details->voice_profile))
+                            <div class="mb-3">
+                                <label class="form-label">Your Saved Voice Profile</label>
+                                <audio controls>
+                                    <source src="{{ $contact_details->voice_profile }}" type="audio/webm">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                            <a class="btn btn-warning mt-2" id="reRecordBtn">Re-record Voice</a>
+                        @endif
                         <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
-                            data-bs-target="#voiceProfileModal">
+                            data-bs-target="#voiceProfileModal" style="{{ !empty($contact_details->voice_profile) ? 'display:none;' : '' }}">
                             Create Voice Profile
                         </button>
                         <input type="hidden" name="voice_profile" id="voice_profile_data" required>
@@ -296,28 +307,34 @@
     </div>
 
     <!-- Voice Profile Modal -->
-    <div class="modal fade" id="voiceProfileModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Voice Profile Setup</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Note:</strong> Please say the following:</p>
-                    <blockquote class="blockquote">"My name is [Your Name], and this is my voice profile for verification."
-                    </blockquote>
-                    <div class="d-flex justify-content-center gap-2 mt-3">
-                        <button type="button" class="btn btn-primary" id="startRecord">Start Recording</button>
-                        <button type="button" class="btn btn-secondary" id="playAudio" disabled>Hear</button>
-                        <button type="button" class="btn btn-warning" id="reRecord" disabled>Re-record</button>
-                        <button type="button" class="btn btn-success" id="confirmRecording" disabled>Confirm</button>
-                    </div>
-                    <audio id="audioPlayback" class="mt-3 w-100" controls style="display:none;"></audio>
-                </div>
+    <div class="modal fade" id="voiceProfileModal" tabindex="-1" aria-labelledby="voiceProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+            <h5 class="modal-title">Create Voice Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <textarea name="dummy_note" class="form-control" id="">
+                    This is a demo text to read while recording your voice profile.
+                </textarea>
+            <p>Recording Time: <span id="recordingTime">0s</span></p>
+
+            <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                <button class="btn btn-success" id="startRecording">Start</button>
+                <button class="btn btn-danger" id="stopRecording" disabled>Stop</button>
+                <button class="btn btn-info" id="playAudio" disabled>Hear</button>
+                <button class="btn btn-warning" id="reRecord">Re-record</button>
+                <button class="btn btn-primary" id="confirmRecording" disabled>Confirm</button>
+            </div>
+
+            <audio id="audioPreview" class="mt-3" controls hidden></audio>
+            <input type="hidden" id="voice_profile_data" />
             </div>
         </div>
+        </div>
     </div>
+
 
 
 @endsection
@@ -329,105 +346,7 @@
 @endsection
 
 @section('page-script')
-    <!-- <script src="{{ asset('assets/js/jquery.min.js') }}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.min.js"></script>
     <script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
-    <script>
-        let steps = document.querySelectorAll('.step-card');
-        let navLinks = document.querySelectorAll('.step-indicator .nav-link');
-        let currentStep = 0;
-
-        function showStep(index) {
-            steps.forEach((s, i) => s.classList.toggle('active', i === index));
-            navLinks.forEach((l, i) => l.classList.toggle('active', i === index));
-            currentStep = index;
-        }
-
-        function nextStep() {
-            if (currentStep < steps.length - 1) showStep(currentStep + 1);
-        }
-
-        function prevStep() {
-            if (currentStep > 0) showStep(currentStep - 1);
-        }
-        navLinks.forEach((btn, i) => btn.addEventListener('click', () => showStep(i)));
-
-        function previewImage(event) {
-            const input = event.target;
-            const reader = new FileReader();
-
-            reader.onload = function() {
-                const img = document.getElementById('profilePicPreview');
-                img.src = reader.result;
-                img.style.display = 'block';
-            };
-
-            if (input.files && input.files[0]) {
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
-    <script>
-        let mediaRecorder, audioChunks = [];
-        const startBtn = document.getElementById("startRecord");
-        const playBtn = document.getElementById("playAudio");
-        const reRecordBtn = document.getElementById("reRecord");
-        const confirmBtn = document.getElementById("confirmRecording");
-        const audioTag = document.getElementById("audioPlayback");
-        const voiceProfileField = document.getElementById("voice_profile_data");
-
-        startBtn.addEventListener("click", async () => {
-            audioChunks = [];
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true
-                });
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, {
-                        type: 'audio/webm'
-                    });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    audioTag.src = audioUrl;
-                    audioTag.style.display = "block";
-                    playBtn.disabled = reRecordBtn.disabled = confirmBtn.disabled = false;
-                    const reader = new FileReader();
-                    reader.readAsDataURL(audioBlob);
-                    reader.onloadend = () => voiceProfileField.value = reader.result;
-                };
-                mediaRecorder.start();
-                startBtn.textContent = "Recording...";
-                startBtn.disabled = true;
-                setTimeout(() => {
-                    mediaRecorder.stop();
-                    startBtn.textContent = "Start Recording";
-                    startBtn.disabled = false;
-                }, 10000);
-            } catch (err) {
-                alert("Microphone access denied or not available.");
-            }
-        });
-        playBtn.addEventListener("click", () => audioTag.play());
-        reRecordBtn.addEventListener("click", () => {
-            playBtn.disabled = reRecordBtn.disabled = confirmBtn.disabled = true;
-            audioTag.style.display = "none";
-            audioTag.pause();
-            audioTag.src = "";
-            voiceProfileField.value = "";
-        });
-        confirmBtn.addEventListener("click", () => {
-            if (!voiceProfileField.value) {
-                alert("Please record your voice profile before continuing.");
-                return;
-            }
-            bootstrap.Modal.getInstance(document.getElementById('voiceProfileModal')).hide();
-        });
-        $('.flatpickr').flatpickr();
-    </script>
-    <script>
-        CKEDITOR.replaceAll(function(textarea, config) {
-            config.height = 200;
-            return true; // return true to replace this textarea
-        });
-    </script>
+      @include('scripts.client_onboarding.index_js')
 @endsection

@@ -43,7 +43,7 @@ class ClientOnboardingController extends Controller
 
     public function save_client_onboarding_page(Request $request)
     {
-        Log::info("Client Onboarding Save Request: ", $request->all());
+        // Log::info("Client Onboarding Save Request: ", $request->all());
 
         try {
 
@@ -51,16 +51,31 @@ class ClientOnboardingController extends Controller
             $base64Audio = $request->input('voice_profile');
 
             if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
-                [$metadata, $base64Data] = explode(',', $base64Audio);
-                preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
-                $extension = $matches[1] ?? 'webm';
 
-                $decoded  = base64_decode($base64Data);
-                $filename = 'voice_' . time() . '.' . $extension;
-                $path     = 'images/client_contact/voice_profile/' . $filename;
+                [$type, $data] = explode(';', $base64Audio);
+                // [, $data] = explode(',', $data);
+                $decoded = base64_decode($data);
+                if ($decoded === false) {
+                    return response()->json(['error' => 'Failed to decode audio'], 400);
+                }
+                // Store
+                $fileName = 'images/client_contact/voice_profiles/' . uniqid() . '.webm';
+                Storage::disk(config('filesystems.default'))->put($fileName, $decoded);
 
-                Storage::disk(config('filesystems.default'))->put($path, $decoded);
-                $publicPath = Storage::url($path);
+                $publicPath = Storage::url($fileName);
+                ClientContacts::where("user_id", $user_id)->update([
+                    'voice_profile' => $publicPath,
+                ]);
+                // [$metadata, $base64Data] = explode(',', $base64Audio);
+                // preg_match('/^data:audio\/(\w+);base64$/', $metadata, $matches);
+                // $extension = $matches[1] ?? 'webm';
+
+                // $decoded  = base64_decode($base64Data);
+                // $filename = 'voice_' . time() . '.' . $extension;
+                // $path     = 'images/client_contact/voice_profile/' . $filename;
+
+                // Storage::disk(config('filesystems.default'))->put($path, $decoded);
+                // $publicPath = Storage::url($path);
                 // Storage::put($path, $decoded);
                 // $publicPath = Storage::url('audio/' . $filename);
 

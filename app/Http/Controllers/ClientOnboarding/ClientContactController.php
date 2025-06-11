@@ -82,7 +82,7 @@ class ClientContactController extends Controller
             if( !$client || !$client->client_id) {
                 return redirect()->back()->with('error', 'Client not found or not set up correctly.');
             }
-            
+
             $data['gender_term']  = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
             $data['reporting_to'] = ClientContacts::where('client_id', $client->client_id)
                                     ->where('is_active', 1)
@@ -145,6 +145,7 @@ class ClientContactController extends Controller
                 // Generate the unique employee ID using your helper
                 $contact->id_no         = $request->id_no;
                 $contact->created_by    = $auth_user ? $auth_user->association_id : null;
+                $contact->profile_status_term  = config('custom.profile_progress_term.in_progress');
                 $contact->save(); // Save the ClientContact record
 
                 Log::info("ClientContact created with ID: " . $contact->id . " and Employee ID: " . $contact->id_no);

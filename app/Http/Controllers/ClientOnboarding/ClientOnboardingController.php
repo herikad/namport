@@ -32,7 +32,7 @@ class ClientOnboardingController extends Controller
                 $data['gender_term']  = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
                 // $data['role_term']    = UsrRole::where('pb_usr_role.user_type_term', $data['user_details']->user_type_term)->where('is_active', 1)->get(['display_name', 'role_id']);
                 $data['reporting_to'] = ClientContacts::where('client_id', $client_id)->where('is_active', 1)->where('client_contacts_id', '!=', $client_contact_details->client_contacts_id)->get(['client_contacts_id', 'display_name']);
-                $data['profile_link_term'] = config('custom.profile_progress_term');
+                $data['profile_link_term'] = config('custom.profile_status_term');
 
                 return view('frontend.client_onboarding.client_onboarding', $data);
             }
@@ -119,6 +119,7 @@ class ClientOnboardingController extends Controller
                 $clientContact->responsibilities = $request->responsibilities ?? '';
                 $clientContact->role            = $request->role;
                 $clientContact->updated_at      = now();
+                $clientContact->profile_status_term  = config('custom.profile_progress_term.done'); // 'done' if the voice_profile recorded
                 $clientContact->save();
             }
 

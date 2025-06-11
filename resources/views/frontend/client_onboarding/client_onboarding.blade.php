@@ -177,7 +177,7 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <label class="form-label">Profile Status</label>
                             <select name="profile_status_term" class="select2 form-control" id="profile_status_term"
                                 data-element-ref="select2">
@@ -189,7 +189,7 @@
                                     @endforeach
                                 @endif
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="text-end">
                         <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>

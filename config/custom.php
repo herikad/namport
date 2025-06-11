@@ -6,6 +6,7 @@
 //! To clear local storage: (https://www.leadshook.com/help/how-to-clear-local-storage-in-google-chrome-browser/).
 
 return [
+    'default_client_id'          => '1',
     'default_currency'          => '$',
     'default_records_limit'     => 20,
     'default_country_shortcode' => 'US',

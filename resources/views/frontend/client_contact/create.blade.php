@@ -86,7 +86,8 @@
                 <h4 class="card-title text-primary">Client Contact</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('client_contacts.store') }}" class="mail_form" id="contact_formid" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('client_contacts.store') }}" class="mail_form" id="contact_formid"
+                    enctype="multipart/form-data">
                     @csrf
                     <div class="form-body">
                         <div class="row">
@@ -178,6 +179,37 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label class="form-label">Gender</label>
+                                        <select name="gender_type_term" class="select2 form-control" id="gender_type_term"
+                                            data-element-ref="select2">
+                                            <option value="">Select Gender</option>
+                                            @if (count($gender_term))
+                                                @foreach ($gender_term as $key => $term)
+                                                    <option value="{{ $term->value }}"
+                                                        {{ isset($contact_details) && $contact_details->gender_term == $term->value ? 'selected' : '' }}>
+                                                        {{ $term->label }} </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label class="form-label">Reporting To</label>
+                                        <select name="reporting_to" class="select2 form-control" id="reporting_to"
+                                            data-element-ref="select2">
+                                            <option value="">Select Reporting To</option>
+                                            @if (count($reporting_to))
+                                                @foreach ($reporting_to as $key => $reproting)
+                                                    <option value="{{ $reproting->client_contacts_id }}"
+                                                        {{ isset($contact_details) && $contact_details->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
+                                                        {{ $reproting->display_name }} </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                     </div>
                                 </div>
                             </div>

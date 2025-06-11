@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\UsrRights;
 use App\Models\UsrRoleright;
 use App\Models\UsrUserrole;
-use App\Models\ClientContacts;
+use App\Models\MstClient;
 use App\Repositories\CommonRepository;
 use Config;
 use DateTime;
@@ -1184,5 +1184,14 @@ class Helpers
 
     public static function dnc($value) {
        return Crypt::decrypt($value);
+    }
+
+    public static function defaultClientID() {
+       try {
+          $client = MstClient::where('client_id', config('custom.default_client_id'))->first();
+          return $client ? $client : null;
+       } catch (\Exception $e) {
+          Log::info('defaultClient error ' . print_r($e->getMessage(), true));
+       }
     }
 }

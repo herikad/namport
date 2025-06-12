@@ -1,4 +1,16 @@
+<script>
+  var AWSURL = "{{ env('AWS_URL') }}";
 
+  var file_System = "{{ config('filesystems.default') }}";
+
+  var asset_public_url = "{{ asset('') }}";
+
+  if(file_System == 's3'){
+      assetBaseUrl = AWSURL;
+  }
+  var localAssetBaseUrl = "{{ asset('') }}";
+
+</script>
 <!-- BEGIN: Vendor JS-->
 
 <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>

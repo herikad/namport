@@ -5,17 +5,22 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\Setup\Configuration\AppSettingController;
 use App\Http\Controllers\Setup\Configuration\EmailConfigurationController;
 use App\Http\Controllers\Setup\Configuration\EmailTemplateController;
 use App\Http\Controllers\Setup\Configuration\GeneralSettingController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Repositories\MailRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\ClientOnboarding\ClientOnboardingController;
+use App\Http\Controllers\ClientOnboarding\ClientContactController;
+
 
 
 /*
@@ -76,6 +81,9 @@ Route::get('template', function () {
 
     return view('email_templates.common_mail_template', compact('view'));
 });
+
+Route::get('/client/onboarding/{profile_link?}', [ClientOnboardingController::class, 'client_onboarding_page'])->name('client-onboarding-page');
+Route::POST('/store/onboarding', [ClientOnboardingController::class, 'save_client_onboarding_page'])->name('store-client-onboarding-page');
 
 Route::get('/crm/{crm_slug}', [CommonController::class, 'crm_slug'])->name('crm_slug');
 
@@ -192,6 +200,26 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
+        // department
+
+        Route::group(['prefix' => 'department', 'as' => 'department.'], function () {
+            Route::get('/', [DepartmentController::class, 'index'])->name('index');
+            Route::post('department_json_list', [DepartmentController::class, 'department_json_list'])->name('department_json_list');
+            Route::get('create/{id?}', [DepartmentController::class, 'create'])->name('create');
+            Route::post('store', [DepartmentController::class, 'store'])->name('store');
+            Route::post('/status/update', [DepartmentController::class, 'status_update'])->name('status_update');
+        });
+
+        // DesignationController
+        Route::group(['prefix' => 'designation', 'as' => 'designation.'], function () {
+            Route::get('/', [DesignationController::class, 'index'])->name('index');
+            Route::post('designation_json_list', [DesignationController::class, 'designation_json_list'])->name('designation_json_list');
+            Route::get('create/{id?}', [DesignationController::class, 'create'])->name('create');
+            // Route::post('store', [DepartmentController::class, 'store'])->name('store');
+            Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
+        });
+
+
     });
 
     Route::group(['prefix' => 'notification', 'as' => 'notification.'], function () {
@@ -211,23 +239,12 @@ Route::group(['middleware' => 'auth'], function () {
         );
     });
 
-    // Members
-    Route::group(['prefix' => 'members', 'as' => 'members.'], function () {
-
-        Route::get('/', [MemberController::class, 'index'])->name('index');
-        Route::post('member_json_list', [MemberController::class, 'member_json_list'])->name('member_json_list');
-        Route::post('/status/update', [MemberController::class, 'status_update'])->name('status_update');
-        Route::get('view/{member_id?}', [MemberController::class, 'view'])->name('view');
-        Route::post('order_json_list', [OrderController::class, 'order_json_list'])->name('order_json_list');
-        Route::post('order_detail_list_json', [OrderController::class, 'order_detail_list_json'])->name('order_detail_list_json');
-        Route::post('get_member_post_list', [MemberController::class, 'get_member_post_list'])->name('get_member_post_list');
-        Route::post('get_member_followers_list', [MemberController::class, 'get_member_followers_list'])->name('get_member_followers_list');
-        Route::post('get_member_following_list', [MemberController::class, 'get_member_following_list'])->name('get_member_following_list');
-        Route::post('get_liked_member_list', [MemberController::class, 'get_liked_member_list'])->name('get_liked_member_list');
-        Route::post('get_post_detail', [MemberController::class, 'get_post_detail'])->name('get_post_detail');
-        Route::post('get_commented_member_list', [MemberController::class, 'get_commented_member_list'])->name('get_commented_member_list');
-        Route::post('get_interested_member_list', [MemberController::class, 'get_interested_member_list'])->name('get_interested_member_list');
-        Route::post('get_member_subscription_list', [MemberController::class, 'get_member_subscription_list'])->name('get_member_subscription_list');
+    Route::group(['prefix' => 'client_contacts', 'as' => 'client_contacts.'], function () {
+        Route::get('/', [ClientContactController::class, 'index'])->name('index');
+        Route::get('/create', [ClientContactController::class, 'create'])->name('create');
+        Route::post('/contact_list_json', [ClientContactController::class, 'contact_list_json'])->name('contact_list_json');
+        Route::post('/store', [ClientContactController::class, 'store'])->name('store');
+        Route::post('/active_status_update', [ClientContactController::class, 'active_status_update'])->name('active_status_update');
     });
 
 });

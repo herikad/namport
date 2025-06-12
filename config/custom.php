@@ -6,6 +6,7 @@
 //! To clear local storage: (https://www.leadshook.com/help/how-to-clear-local-storage-in-google-chrome-browser/).
 
 return [
+    'default_client_id'          => '1',
     'default_currency'          => '$',
     'default_records_limit'     => 20,
     'default_country_shortcode' => 'US',
@@ -38,6 +39,7 @@ return [
         'WELCOME_MAIL'             => 'WELCOME_MAIL',
         'RESET_PASSWORD'           => 'RESET_PASSWORD',
         'RESEND_VERIFICATION_MAIL' => 'RESEND_VERIFICATION_MAIL',
+        'WELCOME_CLIENT_CONTACT' => 'WELCOME_CLIENT_CONTACT',
     ],
     'image_base_url'            => config('filesystems.default') == 's3' ? '' : '',
     'term_category'             => [
@@ -65,12 +67,17 @@ return [
     ],
     'user_type_term'            => [
         'super_admin' => 'super_admin',
-        'member'      => 'member',
+        'client_contact'      => 'client_contact',
     ],
     'default_role'              => [
         'super_admin' => 'Super Admin',
     ],
     'currency_sign'             => [
         'usd' => '$',
+    ],
+    'profile_status_term' => [
+        'not_started'   => 'Not Started',
+        'in_progress' => 'In Progress',
+        'done'   => 'Done',
     ],
 ];

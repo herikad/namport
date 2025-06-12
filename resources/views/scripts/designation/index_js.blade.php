@@ -95,7 +95,7 @@
                             var html = '';
 
                             html += ' <a title="Edit" href="' + baseUrl +
-                                'setup/department/create/' + row.designation_id +
+                                'setup/designation/create/' + row.designation_id +
                                 '" class="text-end"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"  ></i></a>';
 
                             return html;

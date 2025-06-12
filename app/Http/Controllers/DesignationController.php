@@ -24,7 +24,7 @@ class DesignationController extends Controller
             $clients = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
             if(!empty($id)){
                 $designation = Designation::where('designation_id', $id)->first();
-                return view('pages.designation.create',compact('clients','department'));
+                return view('pages.designation.create',compact('clients','designation'));
             } else {
             return view('pages.designation.create',compact('clients'));
             }
@@ -110,7 +110,7 @@ class DesignationController extends Controller
 
             } else {
 
-                return response()->json(['status' => 0, "message" => trans('pages.crud_messages.no_data', ['attr' => 'Department'])], 200);
+                return response()->json(['status' => 0, "message" => trans('pages.crud_messages.no_data', ['attr' => 'designation'])], 200);
             }
         } catch (\Exception $e) {
 
@@ -119,5 +119,46 @@ class DesignationController extends Controller
             return redirect()->back()->with(["success" => 0, "message" => trans('pages.something_wrong')]);
 
         }
+    }
+
+    public function store(Request $request) {
+          try{
+            $rules = ['designation_name' => 'required','client_id' => 'required'];
+
+            $validator = Validator::make($request->all() , $rules);
+
+            if ($validator->fails())
+            {
+                return redirect()->back()->with(['error' => implode(',', $validator->messages()->all())]);
+
+            }else{
+
+                if(isset($request->designation_id)){
+                    $designation = Designation::where('designation_id',$request->designation_id)->first();
+                }else{
+                    $designation = new Designation;
+                }
+
+                $designation->designation_name       = $request->designation_name;
+                $designation->client_id              = $request->client_id;
+                $designation->designation_role       = $request->designation_role;
+                $designation->desig_responsibilities = $request->desig_responsibilities;
+                $designation->save();
+
+                $message = isset($request->designation_id) ? 'updated' : 'created';
+                return response()->json([
+                    'status' => 1,
+                    'success' => true,
+                    'message' => 'Designation '.$message.' successfully',
+                    'redirect_url' => route('setup.designation.index')
+                ], 200);
+            }
+
+        }catch(Exception $e)
+        {
+            Log::info('designation_store_update  log '. print_r($e->getMessage(), true));
+            return redirect()->back()->with('error', 'Something Went Wrong!');
+        }
+
     }
 }

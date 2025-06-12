@@ -105,7 +105,7 @@ class DepartmentController extends Controller
         }
     }
 
-    function store(Request $request) {
+    public function store(Request $request) {
           try{
             $rules = ['department_name' => 'required','client_id' => 'required'];
 

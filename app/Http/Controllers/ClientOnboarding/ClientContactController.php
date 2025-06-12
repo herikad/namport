@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\MstClient;
 use App\Models\ClientContacts;
+use App\Models\Department;
+use App\Models\Designation;
 use Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -77,15 +79,13 @@ class ClientContactController extends Controller
     {
         try {
 
-            $client = \Helper::defaultClientID();
+            $client = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
 
-            if( !$client || !$client->client_id) {
-                return redirect()->back()->with('error', 'Client not found or not set up correctly.');
-            }
-
+            $data['clients'] = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
+            $data['departments']  = Department::where('is_active', 1)->pluck('department_name', 'department_id');
+            $data['designations'] = Designation::where('is_active', 1)->pluck('designation_name', 'designation_id');
             $data['gender_term']  = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
-            $data['reporting_to'] = ClientContacts::where('client_id', $client->client_id)
-                                    ->where('is_active', 1)
+            $data['reporting_to'] = ClientContacts::where('is_active', 1)
                                     ->get(['client_contacts_id', 'display_name']);
 
             return view('frontend.client_contact.create', $data);
@@ -99,6 +99,7 @@ class ClientContactController extends Controller
     {
 
         $validation_rules = [
+            'client_id' => 'required',
             'first_name' => 'required|max:30',
             'last_name' => 'required|max:30',
             'email' => 'required',
@@ -131,16 +132,29 @@ class ClientContactController extends Controller
                 Log::info("User created with ID: " . $user->user_id);
 
                 // 2. Create the ClientContact record
+                $client = \Helper::getClientCustomer($request->client_id);
+
+                if (!$client || !$client->customer_id) {
+                    throw new \Exception("Client not found or not set up correctly.");
+                }
+
                 $contact = new ClientContacts();
-                $client = \Helper::defaultClientID();
-                $contact->client_id     = $client->client_id;
-                $contact->customer_id   = $client->customer_id;
+                $contact->client_id     = $request->client_id;
+                $contact->customer_id   = @$client->customer_id;
                 $contact->user_id       = $user->user_id;
                 $contact->first_name    = $request->first_name;
                 $contact->last_name     = $request->last_name;
                 $contact->mobile_no     = $request->mobile_no;
                 $contact->email         = $request->email;
                 $contact->display_name  = $user->display_name;
+                $contact->gender_term     = $request->gender_type_term;
+                $contact->department      = $request->department;
+                $contact->designation     = $request->designation;
+                $contact->reporting_to    = $request->reporting_to;
+                $contact->date_of_joining = $request->date_of_joining;
+                $contact->status_term     = $request->status_term ?? config('custom.status_term.active');
+                $contact->responsibilities = $request->responsibilities ?? '';
+                $contact->role            = $request->role;
                 $contact->profile_link  = url('/client/onboarding/' . Helper::enc($user->user_id));
                 // Generate the unique employee ID using your helper
                 $contact->id_no         = $request->id_no;
@@ -148,7 +162,7 @@ class ClientContactController extends Controller
                 $contact->profile_status_term  = config('custom.profile_status_term.in_progress');
                 $contact->save(); // Save the ClientContact record
 
-                Log::info("ClientContact created with ID: " . $contact->id . " and Employee ID: " . $contact->id_no);
+                Log::info("ClientContact created with ID: " . $contact->client_contacts_id . " and Employee ID: " . $contact->id_no);
 
                 // 3. Handle Profile Picture Upload
                 if ($request->hasFile('profile_pic')) {
@@ -201,14 +215,23 @@ class ClientContactController extends Controller
                     Log::warning("Skipping welcome email: User, Contact, or Setup Token is missing after creation.");
                 }
 
-                // 5. Redirect on success
-                return redirect()->route('client_contacts.index')->with("success", "Client contact created successfully!");
+                Log::info("Client contact created successfully with ID: " . $contact->client_contacts_id);
 
-            } catch (\Throwable $th) {
+                // 5. Redirect on success
+                $message = isset($request->client_contacts_id) ? 'updated' : 'created';
+
+                return response()->json([
+                    'status' => 1,
+                    'success' => true,
+                    'message' => 'Client contact '.$message.' successfully',
+                    'redirect_url' => route('client_contacts.index')
+                ], 200);
+
+            } catch (\Exception $e) {
                 // Rollback transaction on any error
                 DB::rollBack();
-                Log::error("ClientContactController store Error for client contact creation: " . $th->getMessage(), ['exception' => $th, 'request' => $request->all()]);
-                return redirect()->route('client_contacts.index')->with("error", trans('pages.something_wrong'));
+                Log::error("ClientContactController store Error for client contact creation: " . $e->getMessage(), ['exception' => $e, 'request' => $request->all()]);
+                return redirect()->back()->with('error', 'Something Went Wrong!');
             }
         }
     }

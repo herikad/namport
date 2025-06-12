@@ -130,7 +130,7 @@ class ClientOnboardingController extends Controller
                 $clientContact->designation     = $request->designation;
                 $clientContact->reporting_to    = $request->reporting_to;
                 $clientContact->date_of_joining = $request->date_of_joining;
-                $clientContact->status_term     = $request->status_term ?? 'Active';
+                $clientContact->status_term     = $request->status_term ?? config('custom.status_term.active');
                 $clientContact->responsibilities = $request->responsibilities ?? '';
                 $clientContact->role            = $request->role;
                 $clientContact->updated_at      = now();

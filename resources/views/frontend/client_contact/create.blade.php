@@ -120,6 +120,35 @@
                             <div class="col-12 col-md-8">
                                 <div class="row">
                                     <div class="col-12 col-md-6 mb-3">
+                                        <label class="required">Client</label>
+                                        <select class="select2 form-control" name="client_id" id="user_type_term"
+                                            data-element-ref="select2" required>
+                                            <option value="">Select Client</option>
+                                            @if (count($clients))
+                                                @foreach ($clients as $key => $value)
+                                                    <option value="{{ $value->client_id }}"
+                                                        {{ isset($department) && $department->client_id == $value->client_id ? 'selected' : '' }}>
+                                                        {{ $value->display_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label class="form-label required" for="id_no">ID No.</label>
+                                            <input type="text" name="id_no" id="id_no"
+                                                class="form-control @error('id_no') is-invalid @enderror"
+                                                value="{{ old('id_no') }}" maxlength="20" required>
+                                            @error('id_no')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <div class="form-group"> {{-- Removed 'controls' class as it's not standard Bootstrap --}}
                                             <label class="form-label required" for="first_name">First Name</label>
                                             <input type="text" name="first_name" id="first_name"
@@ -170,20 +199,9 @@
 
                                 <div class="row">
                                     <div class="col-12 col-md-6 mb-3">
-                                        <div class="form-group">
-                                            <label class="form-label required" for="id_no">ID No.</label>
-                                            <input type="text" name="id_no" id="id_no"
-                                                class="form-control @error('id_no') is-invalid @enderror"
-                                                value="{{ old('id_no') }}" maxlength="20" required>
-                                            @error('id_no')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label class="form-label">Gender</label>
-                                        <select name="gender_type_term" class="select2 form-control" id="gender_type_term"
-                                            data-element-ref="select2">
+                                        <label class="form-label required">Gender</label>
+                                        <select name="gender_type_term" class="select2 form-control"
+                                            id="gender_type_term" data-element-ref="select2" required>
                                             <option value="">Select Gender</option>
                                             @if (count($gender_term))
                                                 @foreach ($gender_term as $key => $term)
@@ -194,9 +212,6 @@
                                             @endif
                                         </select>
                                     </div>
-                                </div>
-
-                                <div class="row">
                                     <div class="col-12 col-md-6 mb-3">
                                         <label class="form-label">Reporting To</label>
                                         <select name="reporting_to" class="select2 form-control" id="reporting_to"
@@ -215,6 +230,55 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Date of Joining</label>
+                                <input type="date" class="form-control flatpickr"
+                                    value="{{ \Carbon\Carbon::parse(@$contact_details->date_of_joining)->format('Y-m-d') }}"
+                                    name="date_of_joining">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Department</label>
+                                <select name="department" class="select2 form-control" id="department"
+                                    data-element-ref="select2">
+                                    <option value="">Select Department</option>
+                                    @if (count($departments))
+                                        @foreach ($departments as $key => $dept)
+                                            <option value="{{ $key }}"
+                                                {{ isset($contact_details) && @$contact_details->department == $key ? 'selected' : '' }}>
+                                                {{ $dept }} </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Designation</label>
+                                <select name="designation" class="select2 form-control" id="designation"
+                                    data-element-ref="select2">
+                                    <option value="">Select Designation</option>
+                                    @if (count($designations))
+                                        @foreach ($designations as $key => $designation)
+                                            <option value="{{ $key }}"
+                                                {{ isset($contact_details) && @$contact_details->designation == $key ? 'selected' : '' }}>
+                                                {{ $designation }} </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-12 pt-2">
+                                <label for="role" class="form-label">Role</label>
+                                <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role" rows="6">{{ @$contact_details->role }}</textarea>
+                                <div class="ck_editor_validate_msg"></div>
+                            </div>
+
+                            <div class="col-12 col-md-12">
+                                <label for="responsibilities" class="form-label">Responsibilities</label>
+                                <textarea id="responsibilities" class="form-control" data-element-ref="ckeditor" name="responsibilities" rows="6">{{ @$contact_details->responsibilities }}</textarea>
+                                <div class="ck_editor_validate_msg"></div>
+                            </div>
+                        </div>
                         {{-- Submit/Cancel Buttons --}}
                         <div class="row mt-3">
                             <div class="col-12 text-end">
@@ -235,37 +299,8 @@
 @endsection
 
 {{-- Page scripts (custom JS for this specific page) --}}
-@section('page-scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const profilePicInput = document.getElementById('profile_pic_1');
-            const imgPreview = document.getElementById('img_preview');
-
-            profilePicInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imgPreview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    // Fallback to no_image.jpg if no file is selected (e.g., user cancels selection)
-                    // Ensure this path is correct for your application's public directory
-                    imgPreview.src = '{{ url('/') . '/no_image.jpg' }}';
-                }
-            });
-
-            // Optional: Set initial image if 'old' value or a model property exists (for edit view)
-            // This part would typically be added if you're editing an existing contact
-            // Example (assuming you pass a $contact object from your controller):
-            // @if (isset($contact) && $contact->profile_pic)
-            //     imgPreview.src = '{{ asset('path/to/profile_pics/' . $contact->profile_pic) }}';
-            // @else
-            //     imgPreview.src = '{{ url('/') . '/no_image.jpg' }}';
-            // @endif
-        });
-    </script>
-    {{-- If you have other JS includes, place them here --}}
-    @include('scripts.client_contact.create_js')
+@section('page-script')
+<script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
+{{-- If you have other JS includes, place them here --}}
+@include('scripts.client_contact.create_js')
 @endsection

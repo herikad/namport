@@ -59,7 +59,7 @@ class MailRepository {
                     }
                 }
 
-                Log::info("Before helper send_dynamic_mail() media_files ". print_r($media_files, true));
+                // Log::info("Before helper send_dynamic_mail() media_files ". print_r($media_files, true));
 
                 \Helper::send_dynamic_mail($mail_template_dtls->email_setting_id , $mail_body_view, $receiver_users, $subject,$media_files);
 

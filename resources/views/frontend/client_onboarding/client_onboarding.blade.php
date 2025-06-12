@@ -346,7 +346,7 @@
 @endsection
 
 @section('page-script')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.min.js"></script>
-    <script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
-      @include('scripts.client_onboarding.index_js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.min.js"></script>
+<script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
+@include('scripts.client_onboarding.index_js')
 @endsection

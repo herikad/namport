@@ -21,35 +21,59 @@
 
         ClientContactForm.initEvents = function() {
 
-            $("#contact_formid").validate({
-                ignore: 'input[type=hidden]', // ignore hidden fields
-                errorClass: 'danger',
-                successClass: 'success',
-                highlight: function(element, errorClass) {
-                    $(element).removeClass(errorClass);
-                },
-                unhighlight: function(element, errorClass) {
-                    $(element).removeClass(errorClass);
-                },
-                errorPlacement: function(error, element) {
-                    error.insertAfter(element);
-                },
-                rules: {
-                    first_name: {
-                        required: true
-                    },
-                    last_name: {
-                        required: true
-                    },
-                    email: {
-                        required: true
-                    },
-                },
-                submitHandler: function(form) {
-                    showLoadingDialog();
-                    form.submit();
-                }
+            CKEDITOR.replace('role', {
+                height: 200,
             });
+
+            CKEDITOR.replace('responsibilities', {
+                height: 200,
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const profilePicInput = document.getElementById('profile_pic_1');
+                const imgPreview = document.getElementById('img_preview');
+
+                profilePicInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imgPreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Fallback to no_image.jpg if no file is selected (e.g., user cancels selection)
+                        // Ensure this path is correct for your application's public directory
+                        imgPreview.src = '{{ url('/') . '/no_image.jpg' }}';
+                    }
+                });
+            });
+
+            $('#saveContactBtn').on('click', function(e) {
+
+                submitForm('#contact_formid', '', '', (response) => {
+
+                    console.log("response");
+                    console.log(response);
+                    console.log(response.status);
+
+                    hideLoadingDialog();
+                    if (response.status == 1) {
+                        showSuccessMessage(response.message);
+                        window.location.href = response.redirect_url;
+
+                    } else {
+                        hideLoadingDialog();
+                        showErrorMessage(response.message);
+                    }
+
+                }, (error) => {
+                    // ajax error callback
+                    hideLoadingDialog();
+                    showErrorMessage(error);
+                });
+            });
+
         };
 
         ClientContactForm.processExceptions = function(e) {

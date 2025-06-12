@@ -1186,9 +1186,9 @@ class Helpers
        return Crypt::decrypt($value);
     }
 
-    public static function defaultClientID() {
+    public static function getClientCustomer($client_id) {
        try {
-          $client = MstClient::where('client_id', config('custom.default_client_id'))->first();
+          $client = MstClient::where('client_id', $client_id)->first();
           return $client ? $client : null;
        } catch (\Exception $e) {
           Log::info('defaultClient error ' . print_r($e->getMessage(), true));

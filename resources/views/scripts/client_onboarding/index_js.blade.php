@@ -1,213 +1,207 @@
 <script type="text/javascript">
-  window.onload = function() {
+    window.onload = function() {
 
-      'use strict';
-      var OnboardingForm = window.OnboardingForm || {};
+        'use strict';
+        var OnboardingForm = window.OnboardingForm || {};
 
-      OnboardingForm.regexTagMatch = /\[(.*?)\]/g
-      var xhr = null;
-      if (window.XMLHttpRequest) {
-          xhr = window.XMLHttpRequest;
-      } else if (window.ActiveXObject('Microsoft.XMLHTTP')) {
+        OnboardingForm.regexTagMatch = /\[(.*?)\]/g
+        var xhr = null;
+        if (window.XMLHttpRequest) {
+            xhr = window.XMLHttpRequest;
+        } else if (window.ActiveXObject('Microsoft.XMLHTTP')) {
 
-          xhr = window.ActiveXObject('Microsoft.XMLHTTP');
-      }
-      var send = xhr.prototype.send;
-      xhr.prototype.send = function(data) {
-          try {
-              send.call(this, data);
-          } catch (e) {
-              OnboardingForm.processExceptions(e);
-          }
-      };
-
-      OnboardingForm.initEvents = function() {
-
-        $('.flatpickr').flatpickr();
-        // step wise code start
-        let steps = document.querySelectorAll('.step-card');
-        let navLinks = document.querySelectorAll('.step-indicator .nav-link');
-        let currentStep = 0;
-
-        function showStep(index) {
-        steps.forEach((s, i) => s.classList.toggle('active', i === index));
-        navLinks.forEach((l, i) => l.classList.toggle('active', i === index));
-        currentStep = index;
+            xhr = window.ActiveXObject('Microsoft.XMLHTTP');
         }
-
-        window.nextStep = function () {
-        if (currentStep < steps.length - 1) showStep(currentStep + 1);
+        var send = xhr.prototype.send;
+        xhr.prototype.send = function(data) {
+            try {
+                send.call(this, data);
+            } catch (e) {
+                OnboardingForm.processExceptions(e);
+            }
         };
 
-        window.prevStep = function () {
-        if (currentStep > 0) showStep(currentStep - 1);
-        };
+        OnboardingForm.initEvents = function() {
 
-        navLinks.forEach((btn, i) => {
-        btn.addEventListener('click', () => showStep(i));
-        });
+            $('.flatpickr').flatpickr();
+            // step wise code start
+            let steps = document.querySelectorAll('.step-card');
+            let navLinks = document.querySelectorAll('.step-indicator .nav-link');
+            let currentStep = 0;
 
+            function showStep(index) {
+                steps.forEach((s, i) => s.classList.toggle('active', i === index));
+                navLinks.forEach((l, i) => l.classList.toggle('active', i === index));
+                currentStep = index;
+            }
 
-        document.getElementById('profileInput').addEventListener('change', function(event) {
-            const input = event.target;
-            const reader = new FileReader();
-
-            reader.onload = function () {
-                const img = document.getElementById('profilePicPreview');
-                img.src = reader.result;
-                img.style.display = 'block';
+            window.nextStep = function() {
+                if (currentStep < steps.length - 1) showStep(currentStep + 1);
             };
 
-            if (input.files && input.files[0]) {
-                reader.readAsDataURL(input.files[0]);
-            }
-        });
-        // step wise code end
+            window.prevStep = function() {
+                if (currentStep > 0) showStep(currentStep - 1);
+            };
 
-    /// audio profile code start
+            navLinks.forEach((btn, i) => {
+                btn.addEventListener('click', () => showStep(i));
+            });
 
-        
-        let recorder, audioBlob, interval;
-        let seconds = 0;
-        const maxSeconds = 30;
 
-        const startBtn = document.getElementById('startRecording');
-        const stopBtn = document.getElementById('stopRecording');
-        const playBtn = document.getElementById('playAudio');
-        const reRecordBtn = document.getElementById('reRecord');
-        const confirmBtn = document.getElementById('confirmRecording');
-        const timeText = document.getElementById('recordingTime');
-        const audioPreview = document.getElementById('audioPreview');
-        const hiddenInput = document.getElementById('voice_profile_data');
+            document.getElementById('profileInput').addEventListener('change', function(event) {
+                const input = event.target;
+                const reader = new FileReader();
 
-        startBtn.addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // recorder = RecordRTC(stream, { type: 'audio' });
-                recorder = RecordRTC(stream, {
-                    type: 'audio',
-                    mimeType: 'audio/webm',
-                    recorderType: StereoAudioRecorder, // important for compatibility
-                    desiredSampRate: 16000              // optional, improves quality
+                reader.onload = function() {
+                    const img = document.getElementById('profilePicPreview');
+                    img.src = reader.result;
+                    img.style.display = 'block';
+                };
+
+                if (input.files && input.files[0]) {
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+            // step wise code end
+
+            /// audio profile code start
+
+
+            let recorder, audioBlob, interval;
+            let seconds = 0;
+            const maxSeconds = 30;
+
+            const startBtn = document.getElementById('startRecording');
+            const stopBtn = document.getElementById('stopRecording');
+            const playBtn = document.getElementById('playAudio');
+            const reRecordBtn = document.getElementById('reRecord');
+            const confirmBtn = document.getElementById('confirmRecording');
+            const timeText = document.getElementById('recordingTime');
+            const audioPreview = document.getElementById('audioPreview');
+            const hiddenInput = document.getElementById('voice_profile_data');
+
+            startBtn.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
+                    // recorder = RecordRTC(stream, { type: 'audio' });
+                    recorder = RecordRTC(stream, {
+                        type: 'audio',
+                        mimeType: 'audio/webm',
+                        recorderType: StereoAudioRecorder, // important for compatibility
+                        desiredSampRate: 16000 // optional, improves quality
+                    });
+
+                    recorder.startRecording();
+
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    playBtn.disabled = true;
+                    confirmBtn.disabled = true;
+                    audioPreview.hidden = true;
+
+                    seconds = 0;
+                    timeText.textContent = `${seconds}s`;
+
+                    interval = setInterval(() => {
+                        seconds++;
+                        timeText.textContent = `${seconds}s`;
+                        if (seconds >= maxSeconds) stopRecording();
+                    }, 1000);
+                } catch (err) {
+                    alert("Microphone access is required.");
+                    console.error(err);
+                }
+            });
+
+            stopBtn.addEventListener('click', stopRecording);
+
+            function stopRecording() {
+                clearInterval(interval);
+                recorder.stopRecording(() => {
+                    audioBlob = recorder.getBlob();
+                    const audioURL = URL.createObjectURL(audioBlob);
+                    audioPreview.src = audioURL;
+                    audioPreview.hidden = false;
+
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.disabled = false;
+                    confirmBtn.disabled = false;
+
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        hiddenInput.value = reader.result;
+                    };
+                    reader.readAsDataURL(audioBlob);
                 });
-                
-                recorder.startRecording();
+            }
 
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                playBtn.disabled = true;
-                confirmBtn.disabled = true;
+            playBtn.addEventListener('click', () => {
+                if (audioPreview.src) {
+                    audioPreview.play();
+                }
+            });
+
+            reRecordBtn.addEventListener('click', () => {
+                clearInterval(interval);
+                seconds = 0;
+                timeText.textContent = '0s';
+                audioPreview.src = '';
                 audioPreview.hidden = true;
 
-                seconds = 0;
-                timeText.textContent = `${seconds}s`;
-
-                interval = setInterval(() => {
-                seconds++;
-                timeText.textContent = `${seconds}s`;
-                if (seconds >= maxSeconds) stopRecording();
-                }, 1000);
-            } catch (err) {
-                alert("Microphone access is required.");
-                console.error(err);
-            }
-        });
-
-        stopBtn.addEventListener('click', stopRecording);
-
-        function stopRecording() {
-        clearInterval(interval);
-        recorder.stopRecording(() => {
-            audioBlob = recorder.getBlob();
-            const audioURL = URL.createObjectURL(audioBlob);
-            audioPreview.src = audioURL;
-            audioPreview.hidden = false;
-
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            playBtn.disabled = false;
-            confirmBtn.disabled = false;
-
-            const reader = new FileReader();
-            reader.onload = function () {
-            hiddenInput.value = reader.result;
-            };
-            reader.readAsDataURL(audioBlob);
-        });
-        }
-
-        playBtn.addEventListener('click', () => {
-        if (audioPreview.src) {
-            audioPreview.play();
-        }
-        });
-
-        reRecordBtn.addEventListener('click', () => {
-        clearInterval(interval);
-        seconds = 0;
-        timeText.textContent = '0s';
-        audioPreview.src = '';
-        audioPreview.hidden = true;
-
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        playBtn.disabled = true;
-        confirmBtn.disabled = true;
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            bootstrap.Modal.getInstance(document.getElementById('voiceProfileModal')).hide();
-        });
-
-        $('body').on('click', '#reRecordBtn', function() {
-            const reRecordBtn = document.getElementById('reRecordBtn');
-            const modalEl = document.getElementById('voiceProfileModal');
-
-            if (reRecordBtn && modalEl) {
-            reRecordBtn.addEventListener('click', function () {
-                // Open the modal using Bootstrap JS API
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.disabled = true;
+                confirmBtn.disabled = true;
             });
-            }
-        });
-        document.getElementById('voiceProfileModal').addEventListener('hidden.bs.modal', function () {
-            
-            // Clean stuck backdrop if any
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
-            // Remove modal-open class from body
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = '';
+            confirmBtn.addEventListener('click', () => {
+                bootstrap.Modal.getInstance(document.getElementById('voiceProfileModal')).hide();
+            });
 
-            // Optional: Reset recording fields if needed
-            const audioPreview = document.getElementById('audioPreview');
-            if (audioPreview) audioPreview.src = '';
-        });
+            $('body').on('click', '#reRecordBtn', function() {
+                const reRecordBtn = document.getElementById('reRecordBtn');
+                const modalEl = document.getElementById('voiceProfileModal');
 
+                if (reRecordBtn && modalEl) {
+                    reRecordBtn.addEventListener('click', function() {
+                        // Open the modal using Bootstrap JS API
+                        const modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    });
+                }
+            });
+            document.getElementById('voiceProfileModal').addEventListener('hidden.bs.modal', function() {
 
+                // Clean stuck backdrop if any
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
+                // Remove modal-open class from body
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
 
+                // Optional: Reset recording fields if needed
+                const audioPreview = document.getElementById('audioPreview');
+                if (audioPreview) audioPreview.src = '';
+            });
+            // audio profile code end
 
-    // audio profile code end
+            CKEDITOR.replace('role', {
+                height: 200,
+            });
 
-        
+            CKEDITOR.replace('responsibilities', {
+                height: 200,
+            });
 
-        CKEDITOR.replace('role', {
-            height: 200,
-        });
+        };
 
-        CKEDITOR.replace('responsibilities', {
-            height: 200,
-        });
+        OnboardingForm.processExceptions = function(e) {
+            showErrorMessage(e);
+        };
+        OnboardingForm.initEvents();
 
-    
-      };
-
-      OnboardingForm.processExceptions = function(e) {
-          showErrorMessage(e);
-      };
-      OnboardingForm.initEvents();
-
-  };
+    };
 </script>

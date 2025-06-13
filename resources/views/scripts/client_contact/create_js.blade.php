@@ -53,10 +53,6 @@
 
                 submitForm('#contact_formid', '', '', (response) => {
 
-                    console.log("response");
-                    console.log(response);
-                    console.log(response.status);
-
                     hideLoadingDialog();
                     if (response.status == 1) {
                         showSuccessMessage(response.message);
@@ -70,10 +66,9 @@
                 }, (error) => {
                     // ajax error callback
                     hideLoadingDialog();
-                    showErrorMessage(error);
+                    showErrorMessage(response.message);
                 });
             });
-
         };
 
         ClientContactForm.processExceptions = function(e) {

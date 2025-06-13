@@ -1,7 +1,7 @@
 @extends('layouts.layoutMaster')
 
 {{-- Page title --}}
-@section('title', 'Client Contact')
+@section('title',  isset($client_contact) ? 'Client Contact Edit' : 'Client Contact Create')
 
 {{-- Vendor styles (if any specific vendor CSS is needed, include it here) --}}
 @section('vendor-styles')
@@ -83,7 +83,7 @@
     <section>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title text-primary">Client Contact</h4>
+                <h4 class="card-title text-primary">{{ isset($client_contact) ? 'Edit' : 'Add' }} Client Contact</h4>
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ route('client_contacts.store') }}" class="mail_form" id="contact_formid"

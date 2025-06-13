@@ -75,42 +75,47 @@ class ClientContactController extends Controller
         }
     }
 
-    public function create(Request $request)
-    {
+    public function create($id=''){
         try {
 
-            $client = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
+            // $client = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
 
-            $data['clients'] = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
-            $data['departments']  = Department::where('is_active', 1)->pluck('department_name', 'department_id');
-            $data['designations'] = Designation::where('is_active', 1)->pluck('designation_name', 'designation_id');
-            $data['gender_term']  = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
-            $data['reporting_to'] = ClientContacts::where('is_active', 1)
-                                    ->get(['client_contacts_id', 'display_name']);
+            $clients = MstClient::where('is_active', 1)->get(['client_id', 'display_name','company_name']);
+            $departments  = Department::where('is_active', 1)->pluck('department_name', 'department_id');
+            $designations = Designation::where('is_active', 1)->pluck('designation_name', 'designation_id');
+            $gender_term = \Helper::get_all_terms_by_category(config('custom.term_category.gender_type'));
+            $reporting_to = ClientContacts::where('is_active', 1)->get(['client_contacts_id', 'display_name']);
 
-            return view('frontend.client_contact.create', $data);
+            if(!empty($id)){
+                $client_contact = ClientContacts::find($id);
+                return view('frontend.client_contact.create', compact('clients','departments','designations','gender_term','reporting_to','client_contact'));
+            } else {
+                return view('frontend.client_contact.create', compact('clients','departments','designations','gender_term','reporting_to'));
+            }
 
-        } catch (\Exception $e) {
-            Log::error("ClientContactController create Error : " . $e->getMessage());
+        } catch (\Throwable $th) {
+            Log::info("update_create_error ". print_r($th->getMessage(), true));
+            return redirect()->route('setup.department.index')->with("message" , trans('pages.something_wrong'));
         }
     }
 
     public function store(Request $request)
     {
+        Log::info("ClientContactController store Request Data: " . print_r($request->all(), true));
 
         $validation_rules = [
             'client_id' => 'required',
             'first_name' => 'required|max:30',
             'last_name' => 'required|max:30',
             'email' => 'required',
-            'mobile_no' => 'required',
             'id_no' => 'required',
+            'gender_type_term' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $validation_rules);
 
         if ($validator->fails()) {
-            return redirect()->back()->withInput()->with('error', implode(',', $validator->messages()->all()));
+            return response()->json(['status' => 0, 'message' => implode(',', $validator->messages()->all()), "data" => (object) []]);
         } else {
 
             $auth_user = auth()->user();
@@ -119,6 +124,8 @@ class ClientContactController extends Controller
             DB::beginTransaction();
 
             try {
+                Log::info("ClientContactController store Transaction started for client contact creation.");
+
                 // 1. Create the User record
                 $user = new User();
                 $user->user_type_term      = config('custom.user_type_term.client_contact');
@@ -178,9 +185,9 @@ class ClientContactController extends Controller
                         $contact->save(); // Save the profile pic path to contact
 
                         $user->profile_pic = $profile_pic_path;
-                        $user->association_id = $contact->client_contacts_id;
                         $user->save();
                         Log::info("Profile picture uploaded and saved for user/contact.");
+
                     } else {
                         Log::warning("Profile picture upload failed for user ID: " . $user->user_id);
                     }
@@ -192,6 +199,10 @@ class ClientContactController extends Controller
 
                 // 4. Send Welcome Email with Setup Link
                 if ($user && $contact && $user->user_id) {
+
+                    $user->association_id = $contact->client_contacts_id;
+                    $user->save();
+
                     try {
                         $email_data = [
                             'MAIL_SUBJECT' => "Welcome to Namport!", // As discussed in previous response
@@ -236,6 +247,22 @@ class ClientContactController extends Controller
         }
     }
 
+    public function edit($client_contacts_id)
+    {
+        try {
+
+            $client_contact = ClientContacts::find($client_contacts_id);
+
+            $view = view('admin.social_setup.social_category.edit_post', compact('post'))->render();
+
+            return response()->json(['status' => 1, 'view' => $view]);
+
+        } catch (Exception $e) {
+            Log::info('SocialCategoryController edit post  ' . print_r($e->getMessage(), true));
+            return response()->json(['status' => 0, 'error' => $e->getMessage(), 'view' => '']);
+        }
+    }
+
     public function active_status_update(Request $request)
     {
         try{
@@ -255,5 +282,50 @@ class ClientContactController extends Controller
             Log::info("ClientContactController active_status_update Error : ". print_r($exception->getMessage(), true));
             return redirect()->back()->with(['status' => 0,"message" => trans('pages.something_wrong')]);
         }
+    }
+
+    public function delete(Request $request){
+        try{
+
+          $contact_details = ClientContacts::find($request->client_contacts_id);
+
+          if (!$contact_details) {
+              return response()->json(['status' => 0, 'message' => 'Client Contact not found.']);
+          }
+
+          // $contact_details->is_deleted = 1;
+          // $contact_details->deleted_by = auth()->user()->association_id;
+          // $contact_details->deleted_at = now();
+          // $contact_details->save();
+
+          if($contact_details){
+              $profile_pic = $contact_details->profile_pic;
+
+              $fullPath = "images/client_contact/profile/" . $profile_pic;
+
+              $s3FileUrl = env('AWS_URL') . $fullPath;
+
+              Log::info("ClientContactController delete: Attempting to delete file at " . $s3FileUrl);
+
+              // Checking if the file exists using `@get_headers()`
+              if (@get_headers($s3FileUrl)[0] !== 'HTTP/1.1 404 Not Found') {
+                  \Helper::deleteFile($fullPath);
+              } else {
+                  Log::info("ClientContactController delete: File not found at " . $s3FileUrl);
+              }
+          }
+
+          return response()->json([
+              'status' => 1,
+              'message' => 'Client Contact Deleted Successfully.',
+              'data' => (object) []
+          ]);
+
+        } catch (\Exception $e) {
+            Log::info("ClientContactController delete_error " . print_r($e->getMessage(), true) ." Err occured on line no.  ".print_r($e->getLine(), true));
+            $response = array('status' => 0, 'message' => trans('pages.something_wrong'), 'error' => $e->getMessage(), 'data' => (object) []);
+            return response()->json($response, 200);
+        }
+
     }
 }

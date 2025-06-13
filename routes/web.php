@@ -241,10 +241,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'client_contacts', 'as' => 'client_contacts.'], function () {
         Route::get('/', [ClientContactController::class, 'index'])->name('index');
-        Route::get('/create', [ClientContactController::class, 'create'])->name('create');
+        Route::get('/create/{id?}', [ClientContactController::class, 'create'])->name('create');
         Route::post('/contact_list_json', [ClientContactController::class, 'contact_list_json'])->name('contact_list_json');
         Route::post('/store', [ClientContactController::class, 'store'])->name('store');
         Route::post('/active_status_update', [ClientContactController::class, 'active_status_update'])->name('active_status_update');
+        Route::post('/delete', [ClientContactController::class, 'delete'])->name('delete');
     });
 
 });

@@ -65,7 +65,7 @@
 
                             var html = '';
                             html +=
-                                `<div class="avatar avatar-lg me-2"><img onerror="this.onerror=null;this.src='${defaultNoImg}';"  class="rounded-circle" src="${row.profile_pic != null ?  assetBaseUrl +'images/client_contact/'+ row.profile_pic : defaultNoImg}" alt="avtar img holder"></div>`
+                                `<div class="avatar avatar-lg me-2"><img onerror="this.onerror=null;this.src='${defaultNoImg}';" class="rounded-circle" src="${row.profile_pic != null ?  assetBaseUrl +'images/client_contact/profile/'+ row.profile_pic : defaultNoImg}" alt="avtar img holder"></div>`
                             return html;
                         }
                     },
@@ -120,16 +120,21 @@
                         "data": "client_contacts_id",
                         "render": function(data, type, row) {
 
-                            var icon_delete = '';
-                            if (page_action.is_delete == 1) {
-                                var icon_delete =
-                                    `<i class="bx bx-trash bx-sm text-danger delete_contact" client_contacts_id ="${row.client_contacts_id }" ></i>`;
-                            } else {
-                                icon_delete +=
-                                    `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
+                            var html = '';
+
+                            if(page_action.is_update == 1) {
+                                html += `<a href="${baseUrl}client_contacts/create/${row.client_contacts_id}"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"></i></a>`;
                             }
 
-                            return icon_delete;
+                            if (page_action.is_delete == 1) {
+                                html += `<i class="bx bx-trash bx-sm text-danger delete_contact" client_contacts_id ="${row.client_contacts_id}" ></i>`;
+                            }
+
+                            if (page_action.is_update != 1 && page_action.is_delete != 1) {
+                                html += `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
+                            }
+
+                            return html;
                         }
                     }
 
@@ -150,16 +155,17 @@
 
 
             $('body').on('click', '.delete_contact', function() {
-                var frameId = $(this).attr('frame_id');
+                var client_contacts_id = $(this).attr('client_contacts_id');
+                alert(client_contacts_id)
 
                 confirmDialogMessage("Delete", "Are you sure want to delete this contact permanently?",
                     () => {
                         showLoadingDialog();
                         $.ajax({
                             type: "POST",
-                            url: baseUrl + "social_setup/frame/delete_frame",
+                            url: baseUrl + "client_contacts/delete",
                             data: {
-                                frameId: frameId
+                                client_contacts_id: client_contacts_id
                             },
                             success: function(response) {
                                 hideLoadingDialog();

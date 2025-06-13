@@ -12,6 +12,7 @@ return [
     'default_country_shortcode' => 'US',
     'default_country_code'      => '1',
     'default_timezone'          => 'UTC',
+    'permission_denied' => 'Can’t perform this action.',
     'custom'                    => [
         'myLayout'            => 'vertical',      // Options[String]: vertical(default), horizontal  HORIZONTAL LAYOUT WOULD NOT WORK WITH SEMI DARK THEME
         'myTheme'             => 'theme-default', // Options[String]: theme-default(default), theme-bordered, theme-semi-dark  SEMI-DARK THEME WOULD NOT WORK WITH HORIZONTAL LAYOUT

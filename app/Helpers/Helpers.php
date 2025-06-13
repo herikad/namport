@@ -505,39 +505,54 @@ class Helpers
         }
     }
 
-    public static function deleteFile($img)
+    public static function deleteFile($fullPath)
     {
-
         try {
+            // Log the file path
+            // Log::info("Deleting file: $fullPath");
 
-            if (isset($img) && !empty($img)) {
+            // Determine the storage disk to use
+            $file_system = config('filesystems.default');
 
-                $default_storage = config('filesystems.default');
+            if ($file_system === 's3') {
+                // Check if the file exists in S3
+                if (Storage::disk($file_system)->exists($fullPath)) {
+                    // Attempt to delete the file
+                    $isDeleted = Storage::disk($file_system)->delete($fullPath);
 
-                $default_storage_driver = config('filesystems.disks.' . $default_storage . '.driver');
-
-                if (Storage::disk($default_storage)->exists($img)) {
-
-                    Storage::disk($default_storage)->delete($img);
-                    // File deleted successfully
+                    if ($isDeleted) {
+                        Log::info("File deleted successfully from S3: $fullPath");
+                        return true;
+                    } else {
+                        Log::warning("Failed to delete file from S3: $fullPath");
+                        return false;
+                    }
+                } else {
+                    Log::warning("File not found in S3: $fullPath");
+                    return false;
                 }
+            } else {
+                // Handle local storage logic
+                $localPath = public_path($fullPath);
 
+                // Check if the file exists locally
+                if (file_exists($localPath)) {
+                    // Attempt to delete the file
+                    if (unlink($localPath)) {
+                        Log::info("File deleted successfully from local storage: $localPath");
+                        return true;
+                    } else {
+                        Log::warning("Failed to delete file from local storage: $localPath");
+                        return false;
+                    }
+                } else {
+                    Log::warning("File not found in local storage: $localPath");
+                    return false;
+                }
             }
-            // if ($default_storage == 's3') {
-
-            //     Storage::disk('s3')->delete($img);
-
-            // } else {
-
-            //     if (!empty($img) && File::exists($img)) {
-            //         File::delete($img);
-            //     }
-            // }
-
-        } catch (\Exception $e) {
-
-            Log::info("deleteFile_image_error " . print_r($e->getMessage(), true));
-
+        } catch (\Exception $exception) {
+            Log::error("delete_file error: " . $exception->getMessage());
+            return false;
         }
     }
 

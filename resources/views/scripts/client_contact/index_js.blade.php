@@ -95,9 +95,9 @@
                     {
                         "data": "date_of_joining",
                         "render": function(data, type, row) {
-                            return row.date_of_joining ? convertUtcDateTimeToLocalDateTime(row
-                                    .date_of_joining) :
-                                '-';
+                            return row.date_of_joining
+                                ? moment(row.date_of_joining).format('DD/MM/YYYY')
+                                : '-';
                         }
                     },
                     {
@@ -126,11 +126,12 @@
                                 html += `<a href="${baseUrl}client_contacts/create/${row.client_contacts_id}"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"></i></a>`;
                             }
 
-                            if (page_action.is_delete == 1) {
-                                html += `<i class="bx bx-trash bx-sm text-danger delete_contact" client_contacts_id ="${row.client_contacts_id}" ></i>`;
-                            }
+                            // if (page_action.is_delete == 1) {
+                            //     html += `<i class="bx bx-trash bx-sm text-danger delete_contact" client_contacts_id ="${row.client_contacts_id}" ></i>`;
+                            // }
 
-                            if (page_action.is_update != 1 && page_action.is_delete != 1) {
+                            // if (page_action.is_update != 1 && page_action.is_delete != 1) {
+                            if (page_action.is_update != 1) {
                                 html += `<i class="fas fa-lock text-danger" title="${permission_denied}"></i>`;
                             }
 
@@ -154,32 +155,31 @@
             });
 
 
-            $('body').on('click', '.delete_contact', function() {
-                var client_contacts_id = $(this).attr('client_contacts_id');
-                alert(client_contacts_id)
+            // $('body').on('click', '.delete_contact', function() {
+            //     var client_contacts_id = $(this).attr('client_contacts_id');
 
-                confirmDialogMessage("Delete", "Are you sure want to delete this contact permanently?",
-                    () => {
-                        showLoadingDialog();
-                        $.ajax({
-                            type: "POST",
-                            url: baseUrl + "client_contacts/delete",
-                            data: {
-                                client_contacts_id: client_contacts_id
-                            },
-                            success: function(response) {
-                                hideLoadingDialog();
-                                if (response.status == 1) {
-                                    Template.TempTbls.ajax.reload();
-                                    showSuccessMessage(response.message);
-                                } else {
-                                    showErrorMessage(response.message);
-                                }
-                            },
-                        });
-                    }
-                );
-            })
+            //     confirmDialogMessage("Delete", "Are you sure want to delete this contact permanently?",
+            //         () => {
+            //             showLoadingDialog();
+            //             $.ajax({
+            //                 type: "POST",
+            //                 url: baseUrl + "client_contacts/delete",
+            //                 data: {
+            //                     client_contacts_id: client_contacts_id
+            //                 },
+            //                 success: function(response) {
+            //                     hideLoadingDialog();
+            //                     if (response.status == 1) {
+            //                         Template.TempTbls.ajax.reload();
+            //                         showSuccessMessage(response.message);
+            //                     } else {
+            //                         showErrorMessage(response.message);
+            //                     }
+            //                 },
+            //             });
+            //         }
+            //     );
+            // });
 
             $('body').on('change', '.contact_active_status', function() {
 

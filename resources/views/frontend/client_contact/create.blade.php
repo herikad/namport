@@ -89,6 +89,9 @@
                 <form method="POST" action="{{ route('client_contacts.store') }}" class="mail_form" id="contact_formid"
                     enctype="multipart/form-data">
                     @csrf
+
+                    <input type="hidden" name="client_contacts_id" value="{{isset($client_contact) ? $client_contact->client_contacts_id : ''}}">
+
                     <div class="form-body">
                         <div class="row">
                             {{-- Profile Picture Column --}}
@@ -98,7 +101,7 @@
                                         {{-- This div is now explicitly styled to control the image size --}}
                                         <div id="profile_pic_1_preview" class="image-fixed mb-3"
                                             style="width: 120px; height: 120px; overflow: hidden; border: 2px solid #e0e0e0; background-color: #f8f8f8;">
-                                            <img src="" alt="Profile Picture" id="img_preview"
+                                            <img src="{{ env('AWS_URL') . 'images/client_contact/profile/' . $client_contact->profile_pic }}" alt="Profile Picture" id="img_preview"
                                                 style="object-fit: cover; width: 100%; height: 100%; display: block;"
                                                 onerror="this.src = '{{ url('/') . '/no_image.jpg' }}';">
                                         </div>
@@ -127,7 +130,7 @@
                                             @if (count($clients))
                                                 @foreach ($clients as $key => $value)
                                                     <option value="{{ $value->client_id }}"
-                                                        {{ isset($department) && $department->client_id == $value->client_id ? 'selected' : '' }}>
+                                                        {{ isset($client_contact) && $client_contact->client_id == $value->client_id ? 'selected' : '' }}>
                                                         {{ $value->display_name }}</option>
                                                 @endforeach
                                             @endif
@@ -138,8 +141,7 @@
                                         <div class="form-group">
                                             <label class="form-label required" for="id_no">ID No.</label>
                                             <input type="text" name="id_no" id="id_no"
-                                                class="form-control @error('id_no') is-invalid @enderror"
-                                                value="{{ old('id_no') }}" maxlength="20" required>
+                                                class="form-control @error('id_no') is-invalid @enderror" value="{{isset($client_contact) ? $client_contact->id_no : ''}}" maxlength="20" required>
                                             @error('id_no')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -153,7 +155,7 @@
                                             <label class="form-label required" for="first_name">First Name</label>
                                             <input type="text" name="first_name" id="first_name"
                                                 class="form-control @error('first_name') is-invalid @enderror"
-                                                value="{{ old('first_name') }}" maxlength="30" required>
+                                               value="{{isset($client_contact) ? $client_contact->first_name : ''}}" maxlength="30" required>
                                             @error('first_name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -164,7 +166,7 @@
                                             <label class="form-label required" for="last_name">Last Name</label>
                                             <input type="text" name="last_name" id="last_name"
                                                 class="form-control @error('last_name') is-invalid @enderror"
-                                                value="{{ old('last_name') }}" maxlength="30" required>
+                                                value="{{isset($client_contact) ? $client_contact->last_name : ''}}" maxlength="30" required>
                                             @error('last_name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -178,7 +180,7 @@
                                             <label class="form-label required" for="email">Email</label>
                                             <input type="email" name="email" id="email"
                                                 class="form-control @error('email') is-invalid @enderror"
-                                                value="{{ old('email') }}" maxlength="50" required>
+                                                value="{{isset($client_contact) ? $client_contact->email : ''}}" maxlength="50" required>
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -189,7 +191,7 @@
                                             <label class="form-label" for="mobile_no">Mobile No.</label>
                                             <input type="text" name="mobile_no" id="mobile_no"
                                                 class="form-control @error('mobile_no') is-invalid @enderror"
-                                                value="{{ old('mobile_no') }}">
+                                                value="{{isset($client_contact) ? $client_contact->mobile_no : ''}}">
                                             @error('mobile_no')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -206,7 +208,7 @@
                                             @if (count($gender_term))
                                                 @foreach ($gender_term as $key => $term)
                                                     <option value="{{ $term->value }}"
-                                                        {{ isset($contact_details) && $contact_details->gender_term == $term->value ? 'selected' : '' }}>
+                                                        {{ isset($client_contact) && $client_contact->gender_term == $term->value ? 'selected' : '' }}>
                                                         {{ $term->label }} </option>
                                                 @endforeach
                                             @endif
@@ -220,7 +222,7 @@
                                             @if (count($reporting_to))
                                                 @foreach ($reporting_to as $key => $reproting)
                                                     <option value="{{ $reproting->client_contacts_id }}"
-                                                        {{ isset($contact_details) && $contact_details->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
+                                                        {{ isset($client_contact) && $client_contact->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
                                                         {{ $reproting->display_name }} </option>
                                                 @endforeach
                                             @endif
@@ -234,7 +236,7 @@
                             <div class="col-12 col-md-4">
                                 <label class="form-label">Date of Joining</label>
                                 <input type="date" class="form-control flatpickr"
-                                    value="{{ \Carbon\Carbon::parse(@$contact_details->date_of_joining)->format('Y-m-d') }}"
+                                    value="{{ \Carbon\Carbon::parse(@$client_contact->date_of_joining)->format('Y-m-d') }}"
                                     name="date_of_joining">
                             </div>
 
@@ -246,7 +248,7 @@
                                     @if (count($departments))
                                         @foreach ($departments as $key => $dept)
                                             <option value="{{ $key }}"
-                                                {{ isset($contact_details) && @$contact_details->department == $key ? 'selected' : '' }}>
+                                                {{ isset($client_contact) && @$client_contact->department == $key ? 'selected' : '' }}>
                                                 {{ $dept }} </option>
                                         @endforeach
                                     @endif
@@ -260,7 +262,7 @@
                                     @if (count($designations))
                                         @foreach ($designations as $key => $designation)
                                             <option value="{{ $key }}"
-                                                {{ isset($contact_details) && @$contact_details->designation == $key ? 'selected' : '' }}>
+                                                {{ isset($client_contact) && @$client_contact->designation == $key ? 'selected' : '' }}>
                                                 {{ $designation }} </option>
                                         @endforeach
                                     @endif
@@ -269,13 +271,13 @@
 
                             <div class="col-12 col-md-12 pt-2">
                                 <label for="role" class="form-label">Role</label>
-                                <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role" rows="6">{{ @$contact_details->role }}</textarea>
+                                <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role" rows="6">{{ @$client_contact->role }}</textarea>
                                 <div class="ck_editor_validate_msg"></div>
                             </div>
 
                             <div class="col-12 col-md-12">
                                 <label for="responsibilities" class="form-label">Responsibilities</label>
-                                <textarea id="responsibilities" class="form-control" data-element-ref="ckeditor" name="responsibilities" rows="6">{{ @$contact_details->responsibilities }}</textarea>
+                                <textarea id="responsibilities" class="form-control" data-element-ref="ckeditor" name="responsibilities" rows="6">{{ @$client_contact->responsibilities }}</textarea>
                                 <div class="ck_editor_validate_msg"></div>
                             </div>
                         </div>

@@ -127,7 +127,12 @@ class ClientContactController extends Controller
                 Log::info("ClientContactController store Transaction started for client contact creation.");
 
                 // 1. Create the User record
-                $user = new User();
+                if(isset($request->client_contacts_id)){
+                    $user = User::where('association_id',$request->client_contacts_id)->first();
+                }else{
+                    $user = new User;
+                }
+
                 $user->user_type_term      = config('custom.user_type_term.client_contact');
                 $user->association_type_term = config('custom.user_type_term.client_contact');
                 $user->display_name        = $request->first_name . ' ' . $request->last_name;
@@ -145,7 +150,12 @@ class ClientContactController extends Controller
                     throw new \Exception("Client not found or not set up correctly.");
                 }
 
-                $contact = new ClientContacts();
+                if(isset($request->client_contacts_id)){
+                    $contact = ClientContacts::where('client_contacts_id',$request->client_contacts_id)->first();
+                }else{
+                    $contact = new ClientContacts;
+                }
+                
                 $contact->client_id     = $request->client_id;
                 $contact->customer_id   = @$client->customer_id;
                 $contact->user_id       = $user->user_id;

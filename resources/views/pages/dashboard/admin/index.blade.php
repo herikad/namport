@@ -106,7 +106,7 @@
         </div>
 
         {{-- Member list - graph --}}
-        <div class="row mt-4">
+        {{-- <div class="row mt-4">
             <div class="col-md-12 col-sm-12">
                 <div class="card  p-3 mt-2 shadow-none">
                     <div class="row">
@@ -165,7 +165,7 @@
                     <!-- Member Scatter Chart -->
                 </div>
             </div>
-        </div>
+        </div> --}}
 
 
     </section>

@@ -109,202 +109,172 @@
 
 
 
-    <div class="d-flex justify-content-center align-items-center min-vh-100 bg-light"
-        style="background:url(https://supermia.ai/wp-content/uploads/2025/02/homepagebanner.png) no-repeat center center">
-        <div class="bg-white p-4 rounded shadow clientboad" style="width: 100%; max-width: 950px; min-width: 750px;">
-            <h3 class="mb-4 titlenair">Client Contact Onboarding</h3>
-            <ul class="nav nav-pills mb-4 step-indicator">
-                <li class="nav-item"><button class="nav-link active" type="button">Basic Info</button></li>
-                <li class="nav-item"><button class="nav-link" type="button"> Profile Info</button></li>
-                <li class="nav-item"><button class="nav-link" type="button"> Voice Profile & Role</button></li>
-            </ul>
-            <form id="onboardingForm" method="POST" action="{{ route('store-client-onboarding-page') }}"
-                enctype="multipart/form-data" novalidate>
-                @csrf
-                <!-- Step 1 -->
-                <input type="hidden" name="user_id" value="{{ $user_details->user_id }}">
-                <div class="step-card active">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">First Name</label>
-                            <input type="text" class="form-control" value="{{ $contact_details->first_name }}"
-                                name="first_name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" class="form-control" value="{{ $contact_details->last_name }}"
-                                name="last_name" required>
-                        </div>
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light"
+    style="background:url(https://supermia.ai/wp-content/uploads/2025/02/homepagebanner.png) no-repeat center center; background-size: cover;">
+    <div class="bg-white p-4 rounded shadow clientboad w-100" style="max-width: 950px;">
+        <h3 class="mb-4 titlenair text-center">Client Contact Onboarding</h3>
+
+        <ul class="nav nav-pills mb-4 step-indicator justify-content-center flex-wrap">
+            <li class="nav-item"><button class="nav-link active" type="button">Basic Info</button></li>
+            <li class="nav-item"><button class="nav-link" type="button">Profile Info</button></li>
+            <li class="nav-item"><button class="nav-link" type="button">Voice Profile & Role</button></li>
+        </ul>
+
+        <form id="onboardingForm" method="POST" action="{{ route('store-client-onboarding-page') }}"
+            enctype="multipart/form-data" novalidate>
+            @csrf
+            <input type="hidden" name="user_id" value="{{ $user_details->user_id }}">
+
+            <!-- Step 1 -->
+            <div class="step-card active">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label w-100">First Name</label>
+                        <input type="text" class="form-control" value="{{ $contact_details->first_name }}" name="first_name" required>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Mobile No</label>
-                            <input type="text" class="form-control" value="{{ $contact_details->mobile_no }}"
-                                name="mobile_no" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" value="{{ $contact_details->email }}" name="email"
-                                required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Gender</label>
-                            <select name="gender_type_term" class="select2 form-control" id="gender_type_term"
-                                data-element-ref="select2">
-                                <option value="">Select Gender</option>
-                                @if (count($gender_term))
-                                    @foreach ($gender_term as $key => $term)
-                                        <option value="{{ $term->value }}"
-                                            {{ isset($contact_details) && $contact_details->gender_term == $term->value ? 'selected' : '' }}>
-                                            {{ $term->label }} </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Reporting To</label>
-                            <select name="reporting_to" class="select2 form-control" id="reporting_to"
-                                data-element-ref="select2">
-                                <option value="">Select Reporting To</option>
-                                @if (count($reporting_to))
-                                    @foreach ($reporting_to as $key => $reproting)
-                                        <option value="{{ $reproting->client_contacts_id }}"
-                                            {{ isset($contact_details) && $contact_details->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
-                                            {{ $reproting->display_name }} </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        {{-- <div class="col-md-4">
-                            <label class="form-label">Profile Status</label>
-                            <select name="profile_status_term" class="select2 form-control" id="profile_status_term"
-                                data-element-ref="select2">
-                                @if (count($profile_link_term))
-                                    @foreach ($profile_link_term as $key => $value)
-                                        <option value="{{ $key }}"
-                                            {{ isset($contact_details) && $contact_details->profile_status_term == $key ? 'selected' : '' }}>
-                                            {{ $value }} </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div> --}}
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    <div class="col-md-6">
+                        <label class="form-label w-100">Last Name</label>
+                        <input type="text" class="form-control" value="{{ $contact_details->last_name }}" name="last_name" required>
                     </div>
                 </div>
-                <!-- Step 2 -->
-                <div class="step-card">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">ID No</label>
-                            <input type="text" class="form-control" value="{{ $contact_details->id_no }}" readonly
-                                name="id_no">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Date of Joining</label>
-                            <input type="date" class="form-control flatpickr"
-                                value="{{ \Carbon\Carbon::parse($contact_details->date_of_joining)->format('Y-m-d') }}"
-                                name="date_of_joining">
-                        </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label w-100">Mobile No</label>
+                        <input type="text" class="form-control" value="{{ $contact_details->mobile_no }}" name="mobile_no" required>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Department</label>
-                            <select name="department" class="select2 form-control" id="department"
-                                data-element-ref="select2">
-                                <option value="">Select Department</option>
-                                @if (count($departments))
-                                    @foreach ($departments as $key => $dept)
-                                        <option value="{{ $key }}"
-                                            {{ isset($contact_details) && $contact_details->department == $key ? 'selected' : '' }}>
-                                            {{ $dept }} </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Designation</label>
-                            <select name="designation" class="select2 form-control" id="designation"
-                                data-element-ref="select2">
-                                <option value="">Select Designation</option>
-                                @if (count($designations))
-                                    @foreach ($designations as $key => $designation)
-                                        <option value="{{ $key }}"
-                                            {{ isset($contact_details) && $contact_details->designation == $key ? 'selected' : '' }}>
-                                            {{ $designation }} </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Profile Picture</label>
-
-                        <!-- File input -->
-                        <input type="file" class="form-control" id="profileInput" name="profile_pic" accept="image/*">
-
-                        <!-- Image preview (existing or selected) -->
-                        @if ($contact_details->profile_pic)
-                            <img id="profilePicPreview"
-                                src="{{ !empty($contact_details->profile_pic) ? env('AWS_URL') . 'images/client_contact/profile/' . $contact_details->profile_pic : url('/') . '/no_image.jpg' }}"
-                                class="mt-2 rounded" style="width: 150px; height: 150px; object-fit: cover;"
-                                onerror="this.src = '{{ url('/') . '/no_image.jpg' }}';">
-                        @endif
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    <div class="col-md-6">
+                        <label class="form-label w-100">Email</label>
+                        <input type="email" class="form-control" value="{{ $contact_details->email }}" name="email" required>
                     </div>
                 </div>
-                <!-- Step 3 -->
-                <div class="step-card">
-                    <div class="mb-3">
-
-
-                        <label class="form-label">Voice Profile</label><br>
-                        @if(!empty($contact_details->voice_profile))
-                            <div class="mb-3">
-                                <label class="form-label">Your Saved Voice Profile</label>
-                                <audio controls>
-                                    <source src="{{ $contact_details->voice_profile }}" type="audio/webm">
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </div>
-                            <a class="btn btn-warning mt-2" id="reRecordBtn">Re-record Voice</a>
-                        @endif
-                        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
-                            data-bs-target="#voiceProfileModal" style="{{ !empty($contact_details->voice_profile) ? 'display:none;' : '' }}">
-                            Create Voice Profile
-                        </button>
-                        <input type="hidden" name="voice_profile" id="voice_profile_data" required>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="role" class="form-label">Role</label>
-                                <textarea id="role" class="form-control" data-element-ref="ckeditor" name="role" rows="6">{{ $contact_details->role }}</textarea>
-                                <div class="ck_editor_validate_msg"></div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="responsibilities" class="form-label">Responsibilities</label>
-                                <textarea id="responsibilities" class="form-control" data-element-ref="ckeditor" name="responsibilities" rows="6">{{ $contact_details->responsibilities }}</textarea>
-                                <div class="ck_editor_validate_msg"></div>
-                            </div>
-                        </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label w-100">Gender</label>
+                        <select name="gender_type_term" class="select2 form-control" id="gender_type_term">
+                            <option value="">Select Gender</option>
+                            @foreach ($gender_term as $term)
+                                <option value="{{ $term->value }}" {{ $contact_details->gender_term == $term->value ? 'selected' : '' }}>
+                                    {{ $term->label }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label w-100">Reporting To</label>
+                        <select name="reporting_to" class="select2 form-control" id="reporting_to">
+                            <option value="">Select Reporting To</option>
+                            @foreach ($reporting_to as $reproting)
+                                <option value="{{ $reproting->client_contacts_id }}" {{ $contact_details->reporting_to == $reproting->client_contacts_id ? 'selected' : '' }}>
+                                    {{ $reproting->display_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                </div>
+            </div>
 
-                    <div class="text-end mt-4">
-                        <button type="button" class="btn btn-secondary me-2" onclick="prevStep()">Back</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">ID No</label>
+                        <input type="text" class="form-control" value="{{ $contact_details->id_no }}" readonly name="id_no">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Joining</label>
+                        <input type="date" class="form-control flatpickr"
+                            value="{{ \Carbon\Carbon::parse($contact_details->date_of_joining)->format('Y-m-d') }}"
+                            name="date_of_joining">
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Department</label>
+                        <select name="department" class="select2 form-control" id="department">
+                            <option value="">Select Department</option>
+                            @foreach ($departments as $key => $dept)
+                                <option value="{{ $key }}" {{ $contact_details->department == $key ? 'selected' : '' }}>
+                                    {{ $dept }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Designation</label>
+                        <select name="designation" class="select2 form-control" id="designation">
+                            <option value="">Select Designation</option>
+                            @foreach ($designations as $key => $designation)
+                                <option value="{{ $key }}" {{ $contact_details->designation == $key ? 'selected' : '' }}>
+                                    {{ $designation }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Profile Picture</label>
+                    <input type="file" class="form-control" id="profileInput" name="profile_pic" accept="image/*">
+                    @php
+                        $profile_pic = isset($contact_details->profile_pic) ? 'images/client_contact/profile/' .$contact_details->profile_pic : '/no_image.jpg';
+                    @endphp
+                    <img id="profilePicPreview"
+                        src="{{!empty($contact_details->profile_pic) && config('filesystems.default') == 's3' ? env('AWS_URL') . $profile_pic : url($profile_pic)}}"
+                        class="mt-2 rounded img-fluid" style="max-width: 150px; height: auto; object-fit: cover;">
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card p-4 border rounded bg-white mt-3">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Voice Profile</label>
+                    @if(!empty($contact_details->voice_profile))
+                        <div class="mb-3">
+                            <label class="form-label">Your Past Saved Voice Profile</label>
+                            <audio controls class="w-100">
+                                <source src="{{ !empty($contact_details->voice_profile) && config('filesystems.default') == 's3' ? env('AWS_URL') . '/' . $contact_details->voice_profile : url($contact_details->voice_profile) }}" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                        <a class="btn btn-warning" id="reRecordBtn">Re-record Voice</a>
+                    @endif
+
+                    <button type="button" class="btn btn-primary mt-2 {{ !empty($contact_details->voice_profile) ? 'd-none' : '' }}"
+                        data-bs-toggle="modal" data-bs-target="#voiceProfileModal">
+                        Create Voice Profile
+                    </button>
+
+                    <input type="hidden" name="voice_profile" id="voice_profile_data" required>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label for="role" class="form-label fw-semibold">Role</label>
+                        <textarea id="role" name="role" class="form-control ckeditor" data-element-ref="ckeditor" rows="6">{{ $contact_details->role }}</textarea>
+                        <div class="ck_editor_validate_msg text-danger mt-1"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="responsibilities" class="form-label fw-semibold">Responsibilities</label>
+                        <textarea id="responsibilities" name="responsibilities" data-element-ref="ckeditor" class="form-control ckeditor" rows="6">{{ $contact_details->responsibilities }}</textarea>
+                        <div class="ck_editor_validate_msg text-danger mt-1"></div>
                     </div>
                 </div>
 
-            </form>
-        </div>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-secondary me-2" onclick="prevStep()">Back</button>
+                    <button type="submit" id="submitOnboardingForm" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>
+
 
     <!-- Voice Profile Modal -->
     <div class="modal fade" id="voiceProfileModal" tabindex="-1" aria-labelledby="voiceProfileModalLabel" aria-hidden="true">
@@ -315,9 +285,18 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
-                <textarea name="dummy_note" class="form-control" id="">
-                    This is a demo text to read while recording your voice profile.
-                </textarea>
+               <div class="mb-3">
+                    <label for="dummy_note" class="form-label fw-semibold">Voice Recording Script</label>
+                    <textarea 
+                        name="dummy_note" 
+                        class="form-control" 
+                        id="dummy_note" 
+                        rows="5" 
+                        readonly 
+                        style="resize: none;">Hello, my name is [Your Name], and I am excited to be a part of the team. I bring my experience, dedication, and passion to every interaction, and I look forward to contributing to our shared goals. Thank you for giving me the opportunity to introduce myself.
+                    </textarea>
+                </div>
+
             <p>Recording Time: <span id="recordingTime">0s</span></p>
 
             <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
@@ -346,7 +325,7 @@
 @endsection
 
 @section('page-script')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.min.js"></script>
+<script src="{{ asset('assets/js/RecordRTC.js') }}"></script>
 <script src="{{ asset('extensions/ckeditor/ckeditor.js') }}" type="text/javascript"></script>
 @include('scripts.client_onboarding.index_js')
 @endsection

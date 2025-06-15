@@ -1,60 +1,84 @@
-@php
-    $configData = Helper::appClasses();
-    $customizerHidden = 'customizer-hide';
-@endphp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thank You</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #2c2f3a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-@extends('layouts.blankLayout')
+    .container {
+      display: flex;
+      background-color: #2c2f3a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      max-width: 900px;
+    }
 
-@section('title', 'Thank You')
+    .image {
+    background: url('https://supermia.ai/wp-content/uploads/2025/02/homepagebanner.png') no-repeat center center;
+    background-size: cover;
+    width: 700px;
+    min-height: 400px;
+    }
+    .content {
+      padding: 40px;
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #373b48;
+    }
 
+    .content h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+      color: #fff;
+    }
 
+    .content h1 span {
+      color: #ffce00;
+    }
 
-@section('page-style')
-    <!-- Page -->
+    .content p {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
 
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/page-auth.css') }}">
-    <style>
+    .content a {
+      display: inline-block;
+      background-color: #ffce00;
+      color: #000;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+    }
 
-        .authentication-wrapper.authentication-basic .authentication-inner{
-            max-width:50rem !important;
-        }
-        .banner-img{
-            background: url({{ asset('assets/img/project/bg_1.svg') }});
-            background-repeat: no-repeat;
-            background-size:cover;
-        }
-    </style>
-@endsection
-
-@section('vendor-script')
-@endsection
-
-@section('page-script')
-@endsection
-
-@section('content')
-
-    <div class="banner-img">
-
-        <div class="container-lg">
-            <div class="authentication-wrapper authentication-basic container-p-y">
-                <div class="authentication-inner py-5">
-
-                    <div class="row">
-                        <div class="">
-                            <div class="text-center">
-                                <img class="logo" style="width: 50%;" src="{{ asset('logo.png')}}">
-                                <h3 class="mt-5 mb-4"><b>Thank you for submitting! 🙌</b></h3>
-                                <h6 class="text-center mb-5">Your password has been created successfully!🚀</h6>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
+    .content a:hover {
+      background-color: #f5c400;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="image"></div>
+    <div class="content">
+      <h1>Thank you For <span>Submiting</span></h1>
+      <a href="{{route('login')}}">Back to Login...</a>
     </div>
-
-@endsection
+  </div>
+</body>
+</html>

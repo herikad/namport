@@ -88,9 +88,7 @@
                     // recorder = RecordRTC(stream, { type: 'audio' });
                     recorder = RecordRTC(stream, {
                         type: 'audio',
-                        mimeType: 'audio/webm',
-                        recorderType: StereoAudioRecorder, // important for compatibility
-                        desiredSampRate: 16000 // optional, improves quality
+                        mimeType: 'audio/webm'
                     });
 
                     recorder.startRecording();
@@ -116,12 +114,16 @@
             });
 
             stopBtn.addEventListener('click', stopRecording);
-
             function stopRecording() {
+                
                 clearInterval(interval);
                 recorder.stopRecording(() => {
                     audioBlob = recorder.getBlob();
+                        console.log("Recorded blob size (bytes):", audioBlob.size); // <== ADD THIS LINE
+
                     const audioURL = URL.createObjectURL(audioBlob);
+                        console.log("audioURL:", audioURL); // <== ADD THIS LINE
+
                     audioPreview.src = audioURL;
                     audioPreview.hidden = false;
 
@@ -140,7 +142,10 @@
 
             playBtn.addEventListener('click', () => {
                 if (audioPreview.src) {
-                    audioPreview.play();
+                    audioPreview.play().catch((err) => {
+                        console.error("Playback failed:", err);
+                        alert("Audio playback failed.");
+                    });
                 }
             });
 
@@ -162,15 +167,10 @@
             });
 
             $('body').on('click', '#reRecordBtn', function() {
-                const reRecordBtn = document.getElementById('reRecordBtn');
                 const modalEl = document.getElementById('voiceProfileModal');
-
-                if (reRecordBtn && modalEl) {
-                    reRecordBtn.addEventListener('click', function() {
-                        // Open the modal using Bootstrap JS API
-                        const modal = new bootstrap.Modal(modalEl);
-                        modal.show();
-                    });
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
                 }
             });
             document.getElementById('voiceProfileModal').addEventListener('hidden.bs.modal', function() {
@@ -188,13 +188,30 @@
             });
             // audio profile code end
 
-            CKEDITOR.replace('role', {
-                height: 200,
+            // store data code start
+
+            $('#submitOnboardingForm').on('click', function(e) {
+
+                submitForm('#onboardingForm', '', '', (response) => {
+
+                    hideLoadingDialog();
+                    if(response.status == 1){
+                        showSuccessMessage(response.message);
+                        window.location.href = response.redirect_url;
+
+                    }else{
+                        hideLoadingDialog();
+                        showErrorMessage(response.message);
+                    }
+
+                }, (error) => {
+                        // ajax error callback
+                        hideLoadingDialog();
+                        showErrorMessage(error);
+                });
             });
 
-            CKEDITOR.replace('responsibilities', {
-                height: 200,
-            });
+            // store data code end
 
         };
 

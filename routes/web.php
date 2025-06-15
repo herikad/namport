@@ -50,6 +50,10 @@ Route::get('/run-cron/{cron_name}', function ($cron_name) {
     return 'Done';
 });
 
+Route::get('/thankyou', function () {
+    return view('auth.thank_you');
+})->name('thankyou');
+
 // =================================================  Cron Run Using URL END =====================//
 
 // Route::get('/booking_payout', function(){

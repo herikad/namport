@@ -3,7 +3,7 @@
   return [
     "creatorName" => "MindSquare",
     "creatorUrl" => "https://pixinvent.com",
-    "templateName" => "Pickler",
+    "templateName" => "Namport",
     "templateSuffix" => "Game",
     "templateVersion" => "1.0.0",
     "templateFree" => false,

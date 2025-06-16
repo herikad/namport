@@ -76,7 +76,7 @@
   <div class="container">
     <div class="image"></div>
     <div class="content">
-      <h1>Thank you For <span>Submiting</span></h1>
+      <h1>Thank you For <span>submitting</span></h1>
       <a href="{{route('login')}}">Back to Login...</a>
     </div>
   </div>

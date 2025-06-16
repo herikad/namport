@@ -13,6 +13,7 @@ use App\Http\Controllers\Setup\Configuration\EmailTemplateController;
 use App\Http\Controllers\Setup\Configuration\GeneralSettingController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Repositories\MailRepository;
 use Illuminate\Http\Request;
@@ -224,6 +225,16 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
 
+    });
+
+    // ProjectController
+    Route::group(['prefix' => 'project', 'as' => 'project.'], function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('index');
+        Route::get('create', [ProjectController::class, 'create'])->name('create');
+        // Route::post('designation_json_list', [DesignationController::class, 'designation_json_list'])->name('designation_json_list');
+        // Route::get('create/{id?}', [DesignationController::class, 'create'])->name('create');
+        // Route::post('store', [DesignationController::class, 'store'])->name('store');
+        // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
     });
 
     Route::group(['prefix' => 'notification', 'as' => 'notification.'], function () {

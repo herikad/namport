@@ -73,6 +73,70 @@
       color: #0d3b66 !important;
       border-bottom: 2px solid #0d3b66;
     }
+
+    .nav-pills .nav-link {
+    font-weight: 500;
+    }
+
+    .bg-light {
+      background-color: #f1f4f8 !important;
+    }
+    .text-primary {
+        color: #003366 !important; /* Deep professional blue */
+    }
+    .fw-bold {
+        font-weight: 600;
+    }
+    h6 {
+        font-size: 1.1rem;
+    }
+    .shadow-sm {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .mia-agents-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 20px;
+        max-width: 800px;
+        margin-top: 10px;
+    }
+
+    .mia-agent label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        gap: 10px;
+    }
+
+    .agent-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f7f8fa;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background 0.2s ease;
+    }
+
+    .agent-box img {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .agent-box span {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .mia-checkbox:checked + .agent-box {
+        background-color: #e6f0ff;
+        border: 1px solid #0d6efd;
+    }
+
+
   </style>
 
 

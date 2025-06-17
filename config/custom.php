@@ -79,6 +79,21 @@ return [
     'profile_status_term' => [
         'not_started'   => 'Not Started',
         'in_progress' => 'In Progress',
-        'done'   => 'Done',
+        'completed'   => 'Completed',
+    ],
+    'billing_term' => [
+        'fixed_cost'   => 'Fixed Cost',
+        'hourly' => 'Hourly',
+    ],
+
+    'send_notificaiton_term' => [
+        'immediate'     => 'Send notification instantly after action (e.g. task assigned).',
+        '1_day_before'  => 'Send notification 1 day before the due date.',
+        '2_days_before' => 'Send notification 2 days before the due date.',
+        'on_due'        => 'Send notification on the due date.',
+        'daily'         => 'Send daily notification summaries.',
+        'weekly'        => 'Send weekly notification summaries.',
+        'manual'        => 'Only send notification when triggered manually.',
+        'none'          => 'Do not send any notifications.',
     ],
 ];

@@ -101,7 +101,7 @@
                                         {{-- This div is now explicitly styled to control the image size --}}
                                         <div id="profile_pic_1_preview" class="image-fixed mb-3"
                                             style="width: 120px; height: 120px; overflow: hidden; border: 2px solid #e0e0e0; background-color: #f8f8f8;">
-                                            <img src="{{ env('AWS_URL') . 'images/client_contact/profile/' . $client_contact->profile_pic }}" alt="Profile Picture" id="img_preview"
+                                            <img src="{{ env('AWS_URL') . 'images/client_contact/profile/' . @$client_contact->profile_pic }}" alt="Profile Picture" id="img_preview"
                                                 style="object-fit: cover; width: 100%; height: 100%; display: block;"
                                                 onerror="this.src = '{{ url('/') . '/no_image.jpg' }}';">
                                         </div>

@@ -10,4 +10,5 @@ class ProjectTeam extends Model
     use HasFactory;
     protected $table = 'prj_projectteam';
     protected $primaryKey = 'teamid';
+    public $timestamps = false;
 }

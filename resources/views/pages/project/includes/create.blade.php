@@ -9,6 +9,7 @@
 
         <form  id="store_project_adta" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="client_id" value="{{$client_id}}">
             <div class="modal-body">
                 <!-- Tabs -->
                 <ul class="nav nav-tabs" id="projectTab" role="tablist">
@@ -178,16 +179,16 @@
                                 <input type="text" class="form-control" placeholder="Designation" name="our_team_designation[]">
                                 </div>
                                 <div class="col-md-2 text-end">
-                                <button class="btn btn-outline-danger btn-sm remove-btn">
+                                <a class="btn btn-danger btn-sm remove-btn">
                                     <i class="bx bx-x-circle"></i>
-                                </button>
+                                </a>
                                 </div>
                             </div>
                             </div>
                             <div class="text-end mt-2">
-                            <button class="btn btn-outline-primary btn-sm add-btn" data-target="#ourTeamRepeater">
+                            <a class="btn btn-primary btn-sm add-btn" data-target="#ourTeamRepeater">
                                 <i class="bx bx-plus-circle"></i> Add Our Team Member
-                            </button>
+                            </a>
                             </div>
                         </div>
                         <!-- CLIENT TEAM -->
@@ -206,16 +207,16 @@
                                 <input type="text" class="form-control" placeholder="Designation" name="client_designation[]">
                                 </div>
                                 <div class="col-md-2 text-end">
-                                <button class="btn btn-outline-danger btn-sm remove-btn">
+                                <a class="btn btn-outline-danger btn-sm remove-btn">
                                     <i class="bx bx-x-circle"></i>
-                                </button>
+                                </a>
                                 </div>
                             </div>
                             </div>
                             <div class="text-end mt-2">
-                            <button class="btn btn-outline-primary btn-sm add-btn" data-target="#clientTeamRepeater">
+                            <a class="btn btn-outline-primary btn-sm add-btn" data-target="#clientTeamRepeater">
                                 <i class="bx bx-plus-circle"></i> Add Client Team Member
-                            </button>
+                            </a>
                             </div>
                         </div>
                         <!-- MIA Agents -->

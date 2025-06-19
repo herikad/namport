@@ -24,7 +24,7 @@ class ProjectController extends Controller
         try {
 
             $client_id = 1;
-
+            $data['client_id']         = $client_id;
             $data['billing_terms']     = config('custom.billing_term');
             $data['status']            = config('custom.profile_status_term');
             $data['project_managers']  = ['1' => 'Mayur', '2' => 'Herika', '3' => 'kishan'];
@@ -86,13 +86,146 @@ class ProjectController extends Controller
     }
 
     public function store(Request $request){
-        dd($request->all());
+
         try {
 
-         // render code here
+            $rules = ['projectname' => 'required','client_id' => 'required','projectmanager_id' => 'required'];
+
+            $validator = Validator::make($request->all() , $rules);
+
+            if ($validator->fails())
+            {
+                return response()->json([
+                    'status' => 0,
+                    'success' => false,
+                    'message' => implode(',', $validator->messages()->all())
+                ], 200);
+
+            } else {
+
+                $project = new Project;
+                $project->projectname       = $request->projectname;
+                $project->client_id         = $request->client_id;
+                $project->projectmanager_id = $request->projectmanager_id;
+                $project->billingtype_term  = $request->billingtype_term;
+                $project->status_term       = $request->status_term;
+                $project->startdate         = $request->startdate;
+                $project->enddate           = $request->enddate;
+                $project->sendnotification_term = $request->sendnotification_term;
+                $project->allowcustomertasks = isset($request->allowcustomertasks) && $request->allowcustomertasks == 'on' ? 1 : 0;
+                $project->allowcustomertoedittask = isset($request->allowcustomertoedittask) && $request->allowcustomertoedittask == 'on' ? 1 : 0;
+                $project->allowcustomertocommentonprojecttask = isset($request->allowcustomertocommentonprojecttask) && $request->allowcustomertocommentonprojecttask == 'on' ? 1 : 0;
+                $project->allowcustomertouploadattachmentontask = isset($request->allowcustomertouploadattachmentontask) && $request->allowcustomertouploadattachmentontask == 'on' ? 1 : 0;
+                $project->allowcustomertoviewloggedhrs = isset($request->allowcustomertoviewloggedhrs) && $request->allowcustomertoviewloggedhrs == 'on' ? 1 : 0;
+                $project->allowcustomertouploadfile = isset($request->allowcustomertouploadfile) && $request->allowcustomertouploadfile == 'on' ? 1 : 0;
+                $project->allowcustomertoviewteams = isset($request->allowcustomertoviewteams) && $request->allowcustomertoviewteams == 'on' ? 1 : 0;
+                $project->save();
+
+                if (isset($request->logo_image) && $request->hasFile('logo_image')) {
+                    $file            = $request->file('logo_image');
+                    $image_name      = 'project_logo_'. time() . "." . $file->getClientOriginalExtension();
+                    $destinationPath = ('images/project/logo');
+
+                    \Helper::upload_file($request->file('logo_image'), $image_name, $destinationPath);
+
+                    Project::where("project_id", $project->project_id)->update([
+                        'logo_image' => $image_name,
+                    ]);
+                }
+
+                if (isset($request->banner_image) && $request->hasFile('banner_image')) {
+                    $file               = $request->file('banner_image');
+                    $banner_image_name  = 'project_banner_'. time() . "." . $file->getClientOriginalExtension();
+                    $destinationPath    = ('images/project/banner');
+
+                    \Helper::upload_file($request->file('banner_image'), $banner_image_name, $destinationPath);
+
+                    Project::where("project_id", $project->project_id)->update([
+                        'banner_image' => $banner_image_name,
+                    ]);
+                }
+
+                if (isset($request->level_selected_tab) && $project) {
+
+                    $levels  = ProcessFramwork::where('is_active', 1)
+                                                ->where('client_id', $request->client_id)
+                                                ->where('process_framework_term', $request->level_selected_tab)
+                                                ->orderBy('levelno')
+                                                ->get();
+
+                    if (isset($levels) && !empty($levels)) {
+                        foreach ($levels as $key => $level) {
+                            $level_store = new ProjectProcessFramework;
+                            $level_store->project_framework_id = $project->project_id;
+                            $level_store->ref_process_framework_id = $level->process_framework_id;
+                            $level_store->client_id = $level->client_id;
+                            $level_store->customer_id = $level->customer_id;
+                            $level_store->level_no = $level->levelno;
+                            $level_store->level_name = $level->levelname;
+                            $level_store->level_detail = $level->shortdescription;
+                            $level_store->save();
+                        }
+                    }                   
+                }
+
+                if (isset($request->our_team) && !empty($request->our_team)) {
+                    foreach ($request->our_team as $key => $our_team_id) {
+                        $our_team_designation = isset($request->our_team_designation) ? $request->our_team_designation : [];
+                        $team = new ProjectTeam;
+                        $team->project_id = $project->project_id;
+                        $team->client_id = $project->client_id;
+                        $team->association_id = $our_team_id;
+                        $team->association_type_term = 'our_team';
+                        $team->designation = $our_team_designation[$key] ?? null;
+                        $team->project_role_term = $our_team_designation[$key] ?? null;
+                        $team->assigned_at = date('Y-m-d H:i:s');
+                        $team->assigned_by = auth()->user()->user_id;
+                        $team->save();
+                    }
+                }
+
+                if (isset($request->client_team) && !empty($request->client_team)) {
+                    foreach ($request->client_team as $key => $client_team_id) {
+                        $client_team_designation = isset($request->client_designation) ? $request->client_designation : [];
+                        $team = new ProjectTeam;
+                        $team->project_id = $project->project_id;
+                        $team->client_id = $project->client_id;
+                        $team->association_id = $client_team_id;
+                        $team->association_type_term = 'client_team';
+                        $team->designation = $client_team_designation[$key] ?? null;
+                        $team->project_role_term = $client_team_designation[$key] ?? null;
+                        $team->assigned_at = date('Y-m-d H:i:s');
+                        $team->assigned_by = auth()->user()->user_id;
+                        $team->save();
+                    }
+                }
+
+                if (isset($request->mia_agents) && !empty($request->mia_agents)) {
+                    foreach ($request->mia_agents as $key => $mia_agent_id) {
+                        $team = new ProjectTeam;
+                        $team->project_id = $project->project_id;
+                        $team->client_id = $project->client_id;
+                        $team->association_id = $mia_agent_id;
+                        $team->association_type_term = 'MIA_agnet';
+                        $team->project_role_term = 'MIA_AGENT';
+                        $team->assigned_at = date('Y-m-d H:i:s');
+                        $team->assigned_by = auth()->user()->user_id;
+                        $team->save();
+                    }
+                }
+
+                return response()->json([
+                    'status' => 1,
+                    'success' => true,
+                    'message' => 'Project created has been successfully',
+                    'redirect_url' => route('project.index')
+                ], 200);
+
+            }
 
         } catch (\Exception $e) {
-            Log::info("project_index_error ". print_r($e->getMessage(), true));
+            Log::info("project_store_error ". print_r($e->getMessage(), true));
+            return redirect()->back()->with('error', 'Something Went Wrong!');
         }
     }
 }

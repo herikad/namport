@@ -195,15 +195,11 @@
                         processData: false,
                         contentType: false,
                         beforeSend: function() {
-                            
-                            $('#newProjectModal').modal('hide');
-                            $('#store_project_adta').prop('disabled', true).text('Saving...');
+                            showLoadingDialog();
                         },
                         success: function(response) {
                             
-                            $('#newProjectModal').modal('hide');
-                            $('#store_project_adta').prop('disabled', false).text('Save');
-
+                            hideLoadingDialog();
                             if (response.status === 1) {
                                 $('#newProjectModal').modal('hide');
                                 showSuccessMessage(response.message); // Optional
@@ -213,7 +209,7 @@
                             }
                         },
                         error: function(xhr) {
-                            $('#store_project_adta').prop('disabled', false).text('Save');
+                            hideLoadingDialog();
                             showErrorMessage("Something went wrong. Please try again.");
                         }
                     });

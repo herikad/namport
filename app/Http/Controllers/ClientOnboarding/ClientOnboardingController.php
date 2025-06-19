@@ -113,7 +113,7 @@ class ClientOnboardingController extends Controller
                 // Storage::disk(config('filesystems.default'))->put("voice_profiles/{$mp3Filename}", file_get_contents($mp3Path));
                 Storage::disk(config('filesystems.default'))->putFileAs(
                           'voice_profiles',
-                          File($mp3Path),
+                          new File($mp3Path),
                           $mp3Filename,
                           ['visibility' => 'public', 'ContentType' => 'audio/mpeg']
                       );

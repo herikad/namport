@@ -109,14 +109,12 @@ class ClientOnboardingController extends Controller
                         'message' => 'FFmpeg conversion failed.',
                     ], 200);
                 }
-                // Get public URL
-                // Storage::disk(config('filesystems.default'))->put("voice_profiles/{$mp3Filename}", file_get_contents($mp3Path));
-                Storage::disk(config('filesystems.default'))->putFileAs(
-                          'voice_profiles',
-                          new File($mp3Path),
-                          $mp3Filename,
-                          ['visibility' => 'public', 'ContentType' => 'audio/mpeg']
-                      );
+
+                Storage::disk(config(key: 'filesystems.default'))->put(
+                    "voice_profiles/{$mp3Filename}",
+                    file_get_contents($mp3Path),
+                    ['visibility' => 'public', 'ContentType' => 'audio/mpeg']
+                );
 
                 // Storage::disk(config('filesystems.default'))->put(
                 //     "voice_profiles/{$mp3Filename}",

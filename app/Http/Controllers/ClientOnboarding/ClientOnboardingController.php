@@ -44,19 +44,21 @@ class ClientOnboardingController extends Controller
 
     public function save_client_onboarding_page(Request $request)
     {
-         
+
         // Log::info("Client Onboarding Save Request: ", $request->all());
         // dd($request->all());
         try {
             $clientContact = ClientContacts::where('user_id', $request->user_id)->first();
             $user_id     = $request->user_id;
-            $base64Audio = $request->input('voice_profile'); 
+            $base64Audio = $request->input('voice_profile');
 
             if ($base64Audio && str_starts_with($base64Audio, 'data:audio')) {
 
-                $is_voice_exist = Storage::disk(config('filesystems.default'))->exists($clientContact->voice_profile);
-                if ($is_voice_exist) {
-                    \Helper::deleteFile($clientContact->voice_profile);
+                if (!empty($clientContact?->voice_profile)) {
+                    $is_voice_exist = Storage::disk(config('filesystems.default'))->exists($clientContact->voice_profile);
+                    if ($is_voice_exist) {
+                        \Helper::deleteFile($clientContact->voice_profile);
+                    }
                 }
 
                 if (!preg_match('/^data:audio\/webm;codecs=opus;base64,/', $base64Audio)) {
@@ -82,7 +84,7 @@ class ClientOnboardingController extends Controller
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0755, true);
                 }
-            
+
                 // Save .webm temp file
                 $webmFileName = 'voice_' . uniqid() . '.webm';
                 $webmPath = $tempDir . '/' . $webmFileName;

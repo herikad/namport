@@ -101,6 +101,18 @@
                         }
                     },
                     {
+                        data: "voice_profile",
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `<a href="${assetBaseUrl}storage/${data}" target="_blank" title="Play Voice">
+                                            <i class="bx bx-volume-full text-primary" style="font-size: 30px;color: #000000 !important;"></i>
+                                        </a>`;
+                            } else {
+                                return '-';
+                            }
+                        }
+                    },
+                    {
                         "data": "is_active",
                         "render": function(data, type, row) {
                             var html = '';

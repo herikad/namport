@@ -42,6 +42,7 @@ $page_action = Helper::pageAction(config('pages.form_type.client_contacts'));
                                 <th>Mobile No.</th>
                                 <th>Added On</th>
                                 <th>Date Of Joining</th>
+                                <th>Voice Profile</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>

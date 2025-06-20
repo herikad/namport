@@ -21,5 +21,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([MstClientSeeder::class,]); // php artisan db:seed --class=MstClientSeeder
         $this->call(MstEmployeeSeeder::class); // php artisan db:seed --class=MstEmployeeSeeder
+        $this->call([MstCustomersSeeder::class]); // php artisan db:seed --class=MstCustomersSeeder
+        $this->call([MstMiaAgentsSeeder::class]); // php artisan db:seed --class=MstMiaAgentsSeeder
     }
 }

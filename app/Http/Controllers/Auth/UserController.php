@@ -377,7 +377,7 @@ class UserController extends Controller
                             ->select('users.user_id','users.display_name','users.user_name','users.is_active','users.association_type_term');
 
       $main_query =  $main_query->where('users.user_type_term','!=', config('custom.association_type_term.member'));
-      $main_query =  $main_query->where('users.user_id','!=',auth()->user()->user_id);
+      $main_query =  $main_query->where('users.user_id','!=',auth()->user()->association_id);
 
       if(auth()->user()->association_type_term == config('custom.association_type_term.admin')){
 
@@ -385,7 +385,7 @@ class UserController extends Controller
 
       } else if(auth()->user()->association_type_term == config('custom.association_type_term.club_admin')){
 
-        $main_query =  $main_query->where('users.club_manager_id',auth()->user()->user_id);
+        $main_query =  $main_query->where('users.club_manager_id',auth()->user()->association_id);
       } else{
 
         $main_query =  $main_query->whereNull('users.club_manager_id');

@@ -106,8 +106,7 @@
                                                 onerror="this.src = '{{ url('/') . '/no_image.jpg' }}';">
                                         </div>
                                         <div class="form-group add-new-file text-center">
-                                            <label for="profile_pic_1" class="form-label d-block mb-1">Profile
-                                                Picture</label>
+                                            <label for="profile_pic_1" class="form-label d-block mb-1">Profile Picture</label>
                                             <label for="profile_pic_1"
                                                 class="btn btn-primary btn-sm glow add-file-btn text-capitalize">
                                                 Select Photo

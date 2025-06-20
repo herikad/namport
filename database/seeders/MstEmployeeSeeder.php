@@ -15,7 +15,8 @@ class MstEmployeeSeeder extends Seeder
         DB::table('mst_employee')->insert([
             [
                 'customer_id' => 1,
-                'department_id' => 2,
+                'department_id' => 1,
+                'designation_id' => 1,
                 'user_id' => 3,
                 'role_id' => 4,
                 'first_name' => 'John',
@@ -41,6 +42,7 @@ class MstEmployeeSeeder extends Seeder
             [
                 'customer_id' => 1,
                 'department_id' => 2,
+                'designation_id' => 2,
                 'user_id' => 4,
                 'role_id' => 5,
                 'first_name' => 'Jane',
@@ -66,6 +68,7 @@ class MstEmployeeSeeder extends Seeder
             [
                 'customer_id' => 2,
                 'department_id' => 3,
+                'designation_id' => 3,
                 'user_id' => 5,
                 'role_id' => 6,
                 'first_name' => 'Raj',

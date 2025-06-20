@@ -9,7 +9,8 @@
 
         <form  id="store_project_adta" enctype="multipart/form-data">
         @csrf
-        <input type="hidden" name="client_id" value="{{$client_id}}">
+            <input type="hidden" name="customer_id" value="{{$customer_id}}">
+            <input type="hidden" name="client_id" value="{{$client_id}}">
             <div class="modal-body">
                 <!-- Tabs -->
                 <ul class="nav nav-tabs" id="projectTab" role="tablist">
@@ -31,7 +32,7 @@
                 <div class="tab-content">
                 <!-- Basic Info Tab -->
                 <div class="tab-pane fade show active" id="basicInfo">
-                    
+
                     <div class="row g-3 mb-3">
                         <div class="upload-section">
                             <!-- Logo Upload -->
@@ -120,7 +121,7 @@
                     </ul>
 
                     <div class="tab-content mt-3">
-                        
+
                         @php $first = true; @endphp
                         @foreach($frameworkData as $category => $levels)
                             <div class="tab-pane fade {{ $first ? 'show active' : '' }}" id="{{ Str::slug($category) }}">
@@ -245,7 +246,7 @@
 
                 <!-- Settings Tab -->
                 <div class="tab-pane fade" id="settings">
-                    
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Send Contacts notifications</label>
                         <select name="sendnotification_term" class="form-select">

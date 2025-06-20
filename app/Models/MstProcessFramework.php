@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectProcessFramework extends Model
+class MstProcessFramework extends Model
 {
     use HasFactory;
-    protected $table = 'prj_process_framework';
-    protected $primaryKey = 'proj_process_framework_id';
+    protected $table = 'mst_processframework';
+    protected $primaryKey = 'process_framework_id';
 }

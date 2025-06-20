@@ -3,12 +3,11 @@
 
   var file_System = "{{ config('filesystems.default') }}";
 
-  var asset_public_url = "{{ asset('') }}";
+  var assetBaseUrl = "{{ asset('') }}";
 
   if(file_System == 's3'){
       assetBaseUrl = AWSURL;
   }
-  var localAssetBaseUrl = "{{ asset('') }}";
 
 </script>
 <!-- BEGIN: Vendor JS-->
@@ -35,8 +34,6 @@
 <script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/cleavejs/cleave-phone.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-{{-- Map Location --}}
-<script src="https://maps.googleapis.com/maps/api/js?libraries=places&key={{env('GOOGLE_MAP_API_KEY')}}"></script>
 
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->

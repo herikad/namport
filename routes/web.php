@@ -231,7 +231,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'project', 'as' => 'project.'], function () {
         Route::get('/', [ProjectController::class, 'index'])->name('index');
         Route::post('store', [ProjectController::class, 'store'])->name('store');
-        // Route::post('designation_json_list', [DesignationController::class, 'designation_json_list'])->name('designation_json_list');
+        Route::post('project_json_list', [ProjectController::class, 'project_json_list'])->name('project_json_list');
         // Route::get('create/{id?}', [DesignationController::class, 'create'])->name('create');
         
         // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');

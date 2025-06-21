@@ -101,7 +101,7 @@ class ClientContactController extends Controller
 
     public function store(Request $request)
     {
-        Log::info("ClientContactController store Request Data: " . print_r($request->all(), true));
+        // Log::info("ClientContactController store Request Data: " . print_r($request->all(), true));
 
         $validation_rules = [
             'client_id' => 'required',

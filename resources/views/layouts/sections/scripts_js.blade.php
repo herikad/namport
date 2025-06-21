@@ -583,9 +583,9 @@
             } else if (status_term == "succeeded") {
 
                 html += "<span class='badge rounded-pill bg-label-success'>Successful</span>";
-            } else if (status_term == "processing") {
+            } else if (status_term == "not_started") {
 
-                html += "<span class='badge rounded-pill bg-label-warning'>processing</span>";
+                html += "<span class='badge rounded-pill bg-label-warning'>Not Stared</span>";
 
             } else if (status_term == "{{ config('custom.claim_request_status.approved') }}") {
 
@@ -604,10 +604,9 @@
 
                 html += "<span class='badge rounded-pill bg-label-danger'>Failed</span>";
 
-            } else if (status_term == "Standard") {
+            } else if (status_term == "planned") {
 
-                html +=
-                    "<span class='text-danger m-2'>Standard</span><span class='badge badge-center rounded-pill bg-dark'>S</span>";
+                html += "<span class='badge rounded-pill bg-label-Info'>Planned</span>";
 
             } else {
                 html = status_term;

@@ -189,8 +189,33 @@
             // audio profile code end
 
             // store data code start
+            function validateVoiceProfile() {
+                var existingAudio = `{{ $contact_details->voice_profile ?? '' }}`.trim(); 
+                var newAudio = $('#voice_profile_data').val().trim();
+
+                console.log(existingAudio);
+                console.log(newAudio);
+                
+                // Clear any old error style
+                $('#voice_profile_data').removeClass('is-invalid');
+
+                if (!existingAudio && !newAudio) {
+                    $('button[data-bs-target="#voiceProfileTab"]').tab('show');
+
+                    $('#voice_profile_data').addClass('is-invalid');
+
+                    showErrorMessage('Please create a voice profile.');
+
+                    return false; 
+                }
+
+                return true;
+            }
+
 
             $('#submitOnboardingForm').on('click', function(e) {
+
+                if (!validateVoiceProfile()) return false;
 
                 submitForm('#onboardingForm', '', '', (response) => {
 

@@ -54,18 +54,20 @@
                     <div class="mb-3">
                     <label class="form-label">Project Name</label>
                     <input type="text" class="form-control" name="projectname" value="" require/>
+                    <div class="invalid-feedback" id="projectname-error">Project Name is required</div>
                     </div>
 
                     <div class="mb-3">
                     <label class="form-label">Project Manager</label>
                     <select class="form-select" name="projectmanager_id">
-                        <option selected>Senior Project Manager</option>
+                        <option value=''>Senior Project Manager</option>
                         @if (count($project_managers))
                             @foreach($project_managers as $key => $value)
                             <option value="{{$key}}" >{{$value}}</option>
                             @endforeach
                         @endif
                     </select>
+                    <div class="invalid-feedback" id="projectmanager-error">Please select a Project Manager.</div>
                     </div>
 
                     <div class="row mt-3">
@@ -99,7 +101,7 @@
                     </div>
                     <div class="col-12 mt-3">
                         <label class="form-label">Short Description</label>
-                        <textarea id="short_description" class="form-control" data-element-ref="ckeditor" name="short_description" rows="6"></textarea>
+                        <textarea id="short_description" class="form-control" data-element-ref="ckeditor" name="shortdetail" rows="6"></textarea>
                         <div class="ck_editor_validate_msg"></div>
                     </div>
                     </div>

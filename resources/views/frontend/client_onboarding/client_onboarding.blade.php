@@ -249,7 +249,7 @@
                         data-bs-toggle="modal" data-bs-target="#voiceProfileModal">
                         Create Voice Profile
                     </button>
-
+                    <div class="invalid-feedback">Please upload or record a voice profile.</div>
                     <input type="hidden" name="voice_profile" id="voice_profile_data" required>
                 </div>
 

@@ -174,8 +174,8 @@
                                     <th>Completion</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
-                                    <th>Pending Tasks</th>
-                                    <th>Document</th>
+                                    <!-- <th>Pending Tasks</th>
+                                    <th>Document</th> -->
                                     <th>Action</th>
                                 </tr>
                             </thead>

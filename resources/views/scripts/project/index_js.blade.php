@@ -144,9 +144,10 @@
                     {
                         data: "project_id",
                         render: function(data, type, row) {
-
                             var html = '';
-                            html += ' <a title="Edit" href="#" class="text-end"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"  ></i></a>';
+                            html += ' <a title="Edit" href="' + baseUrl +
+                                'project/edit/' + row.enc_project_id +
+                                '" class="text-end"><i class="bx bx-edit theme-text-secondary bx-sm mr-50"  ></i></a>';
                             return html;
                         }
                     },

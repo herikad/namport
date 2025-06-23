@@ -170,7 +170,7 @@
                         <div class="tab-pane fade show active" id="ourTeam">
                             <div id="ourTeamRepeater" class="team-repeater" data-type="our" data-members='@json($our_teams)'>
                             <div class="row g-2 align-items-center mb-2 repeater-item">
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                 <select class="form-select team-member-select" name="our_team[]">
                                     <option value="">Select Member</option>
                                     @foreach ($our_teams as $member)
@@ -178,8 +178,18 @@
                                     @endforeach
                                 </select>
                                 </div>
-                                <div class="col-md-5">
-                                <input type="text" class="form-control" placeholder="Designation" name="our_team_designation[]">
+
+                                <div class="col-md-3">
+                                <select class="form-select" name="our_team_designation[]">
+                                    <option value="">Select Designation</option>
+                                    @foreach ($designation_term as $key => $member)
+                                    <option value="{{ $key }}">{{ $member }}</option>
+                                    @endforeach
+                                </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Designation" name="our_project_role_term[]">
                                 </div>
                                 <div class="col-md-2 text-end">
                                 <a class="btn btn-danger btn-sm remove-btn">
@@ -198,7 +208,7 @@
                         <div class="tab-pane fade" id="clientTeam">
                             <div id="clientTeamRepeater" class="team-repeater" data-type="client" data-members='@json($client_teams)'>
                             <div class="row g-2 align-items-center mb-2 repeater-item">
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                 <select class="form-select team-member-select" name="client_team[]">
                                     <option value="">Select Member</option>
                                     @foreach ($client_teams as $member)
@@ -206,8 +216,19 @@
                                     @endforeach
                                 </select>
                                 </div>
-                                <div class="col-md-5">
-                                <input type="text" class="form-control" placeholder="Designation" name="client_designation[]">
+
+                                <div class="col-md-3">
+                                <select class="form-select" name="client_designation[]">
+                                    <option value="">Select Designation</option>
+                                    @foreach ($designation_term as $key => $member)
+                                    <option value="{{ $key }}">{{ $member }}</option>
+                                    @endforeach
+                                </select>
+                                </div>
+
+
+                                <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Project Role" name="client_project_role_term[]">
                                 </div>
                                 <div class="col-md-2 text-end">
                                 <a class="btn btn-outline-danger btn-sm remove-btn">

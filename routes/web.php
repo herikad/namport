@@ -232,8 +232,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [ProjectController::class, 'index'])->name('index');
         Route::post('store', [ProjectController::class, 'store'])->name('store');
         Route::post('project_json_list', [ProjectController::class, 'project_json_list'])->name('project_json_list');
-        // Route::get('create/{id?}', [DesignationController::class, 'create'])->name('create');
-        
+        Route::get('edit/{id?}', [ProjectController::class, 'edit'])->name('edit');
+        Route::get('/project/{project_id}/tab/{tab}', [ProjectController::class, 'load_static_tab'])->name('tab_static');
+        Route::get('/project/{project_id}/tab/level/{level_no}', [ProjectController::class, 'load_dynamic_tab'])->name('tab_level');
+
         // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
     });
 

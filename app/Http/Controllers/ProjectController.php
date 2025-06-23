@@ -77,6 +77,8 @@ class ProjectController extends Controller
 
             $data['send_notificaiton_term'] = config('custom.send_notificaiton_term');
 
+            $data['designation_term'] = config('custom.designation_term');
+
             return view('pages.project.index', $data);
         } catch (\Exception $e) {
             Log::info("project_index_error " . print_r($e->getMessage(), true));
@@ -175,6 +177,7 @@ class ProjectController extends Controller
                 if (isset($request->our_team) && ! empty($request->our_team)) {
                     foreach ($request->our_team as $key => $our_team_id) {
                         $our_team_designation        = isset($request->our_team_designation) ? $request->our_team_designation : [];
+                        $our_project_role_term       = isset($request->our_project_role_term) ? $request->our_project_role_term : [];
                         $team                        = new ProjectTeam;
                         $team->project_id            = $project->project_id;
                         $team->client_id             = $project->client_id;
@@ -182,7 +185,7 @@ class ProjectController extends Controller
                         $team->association_id        = $our_team_id;
                         $team->association_type_term = config('custom.association_type_term.our_team');
                         $team->designation           = $our_team_designation[$key] ?? null;
-                        $team->project_role_term     = $our_team_designation[$key] ?? null;
+                        $team->project_role_term     = $our_project_role_term[$key] ?? null;
                         $team->assigned_at           = date('Y-m-d H:i:s');
                         $team->assigned_by           = auth()->user()->association_id;
                         $team->save();
@@ -192,6 +195,8 @@ class ProjectController extends Controller
                 if (isset($request->client_team) && ! empty($request->client_team)) {
                     foreach ($request->client_team as $key => $client_team_id) {
                         $client_team_designation     = isset($request->client_designation) ? $request->client_designation : [];
+                        $client_project_role_term    = isset($request->client_project_role_term) ? $request->client_project_role_term : [];
+
                         $team                        = new ProjectTeam;
                         $team->project_id            = $project->project_id;
                         $team->client_id             = $project->client_id;
@@ -199,7 +204,7 @@ class ProjectController extends Controller
                         $team->association_id        = $client_team_id;
                         $team->association_type_term = config('custom.association_type_term.client_contact');
                         $team->designation           = $client_team_designation[$key] ?? null;
-                        $team->project_role_term     = $client_team_designation[$key] ?? null;
+                        $team->project_role_term     = $client_project_role_term[$key] ?? null;
                         $team->assigned_at           = date('Y-m-d H:i:s');
                         $team->assigned_by           = auth()->user()->association_id;
                         $team->save();
@@ -237,19 +242,13 @@ class ProjectController extends Controller
             DB::rollBack();
 
             Log::info("project_store_error " . print_r($e->getMessage(), true));
-            return redirect()->back()->with('error', 'Something Went Wrong!');
+            return redirect()->route('project.index')->with('error', 'Something Went Wrong!');
         }
     }
 
     public function project_json_list(Request $request){
 
-        //  $projects = Project::with([
-        //                 'ourTeam.employee',
-        //                 'ourClient.clientContact',
-        //                 'miaAgent.miaAgent',
-        //             ])->get();
-        // dd($projects);
-        // try {
+        try {
             $page_index = (int)$request->input('start') > 0 ? ($request->input('start') / $request->input('length')) + 1 : 1;
 
             $limit = (int)$request->input('length') > 0 ? $request->input('length') : DEFAULT_RECORDS_LIMIT;
@@ -305,6 +304,11 @@ class ProjectController extends Controller
                 $recordsFiltered = count($search_list_for_count);
 
             }
+
+            foreach ($appointments as $key => $project) {
+                $project->enc_project_id = \Helper::enc($project->project_id);
+            }
+
             $response = array(
                 "draw" => (int)$request->input('draw'),
                 "recordsTotal" => (int)$recordsTotal,
@@ -313,10 +317,61 @@ class ProjectController extends Controller
             );
 
             return response()->json($response, 200);
-        // } catch (\Exception $e) {
-        //     Log::info("department_json_list_error ". print_r($e->getMessage(), true));
-        // }
+        } catch (\Exception $e) {
+            Log::info("project_json_list_error ". print_r($e->getMessage(), true));
+            return redirect()->route('project.index')->with('error', 'Something Went Wrong!');
+        }
 
     }
+
+    public function edit($id){
+
+        try {
+
+             $project_id = \Helper::dnc($id);
+
+             $data['project_details'] = Project::where('project_id', $project_id)->first();
+
+             if (isset($data['project_details'])) {
+                $data['static_tabs'] = [
+                    ['key' => 'overview', 'label' => 'Overview'],
+                    ['key' => 'activities', 'label' => 'Activities'],
+                    ['key' => 'repository', 'label' => 'Repository'],
+                    ['key' => 'calendar', 'label' => 'Calendar', 'note' => 'Complete Step 2 to enable'],
+                ];
+                $data['levels'] = ProjectProcessFramework::where('project_id',$project_id)->orderBy('level_no')->select('level_no','level_name')->get();
+
+                return view('pages.project.edit', $data);
+             }
+
+        } catch (\Exception $e) {
+            Log::info("project_edit_list_error ". print_r($e->getMessage(), true));
+            return redirect()->route('project.index')->with('error', 'Something Went Wrong!');
+        }
+
+    }
+
+    public function load_static_tab($project_id,$tab)
+    {
+        $project_id = \Helper::dnc($project_id);
+        if (!in_array($tab, ['overview', 'activities', 'repository', 'calendar'])) {
+            abort(404);
+        }
+        return view("pages.project.tabs.$tab");
+    }
+
+    public function load_dynamic_tab($project_id,$level_no)
+    {
+        $project_id = \Helper::dnc($project_id);
+        $level = ProjectProcessFramework::where('level_no', $level_no)->firstOrFail();
+        $view = "pages.project.tabs.level_$level_no";
+
+        if (!view()->exists($view)) {
+            return "<div class='alert alert-warning'>View for level $level_no not found.</div>";
+        }
+
+        return view($view, compact('level'));
+    }
+
 
 }

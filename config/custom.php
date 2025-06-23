@@ -98,4 +98,12 @@ return [
         'manual'        => 'Only send notification when triggered manually.',
         'none'          => 'Do not send any notifications.',
     ],
+    'designation_term' => [
+        'project_manager'   => 'Project Manager',
+        'business_analyst' => 'Business Analyst',
+        'solution_architect' => 'Solution Architect',
+        'qa_engineer' => 'QA Engineer',
+        'devops_engineer' => 'DevOps Engineer',
+        'technical_support' => 'Technical Support',
+    ],
 ];

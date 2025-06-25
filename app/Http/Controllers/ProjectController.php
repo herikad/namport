@@ -57,6 +57,7 @@ class ProjectController extends Controller
             // ->where('is_non_staffmember', 1) // Uncomment if you want to filter non-staff members
                 ->select('employee_id as id', 'display_name as name')
                 ->orderBy('display_name')
+                ->where('customer_id', $data['customer_id'])
                 ->get()
                 ->toArray();
 
@@ -65,10 +66,12 @@ class ProjectController extends Controller
                 ->where('status_term', config('custom.status_term.active'))
                 ->select('client_contacts_id as id', 'display_name as name')
                 ->orderBy('display_name')
+                ->where('customer_id', $data['customer_id'])
                 ->get()
                 ->toArray();
 
             $agents = MstMiaAgent::where('is_active', 1)
+                ->where('customer_id', $data['customer_id'])
                 ->orderBy('mia_agent_id')
                 ->get(['mia_agent_id as id', 'nameofagent as name', 'agentpersonafile as image'])
                 ->toArray();
@@ -353,11 +356,43 @@ class ProjectController extends Controller
 
     public function load_static_tab($project_id,$tab)
     {
+        $data = [];
         $project_id = \Helper::dnc($project_id);
         if (!in_array($tab, ['overview', 'activities', 'repository', 'calendar'])) {
             abort(404);
         }
-        return view("pages.project.tabs.$tab");
+        if ($tab == 'overview') {
+            $data['project_details'] = Project::where('project_id', $project_id)->first();
+            $customer_id = $data['project_details']->customer_id;
+
+            $data['project_manager'] = Employee::where('employee_id', $data['project_details']->projectmanager_id)->first();
+            $departments             = ProjectTeam::from('prj_projectteam as team')
+                                                    ->join('mst_client_contacts as client', 'client.client_contacts_id', '=', 'team.association_id')
+                                                    ->join('mst_department as dept', 'dept.department_id', '=', 'client.department')
+                                                    ->where('team.project_id', $project_id)
+                                                    ->where('team.association_type_term', config('custom.association_type_term.client_contact'))
+                                                    ->distinct()
+                                                    ->pluck('dept.department_name') 
+                                                    ->unique()
+                                                    ->values();
+            $data['departments']    = $departments->implode(', ');
+
+            $data['our_teams']      = Employee::where('is_active', 1)
+                                                ->where('is_admin', 0)
+                                                // ->where('is_non_staffmember', 1) // Uncomment if you want to filter non-staff members
+                                                ->select('employee_id as id', 'display_name as name', 'profilepicture')
+                                                ->orderBy('display_name')
+                                                ->where('customer_id', $customer_id)
+                                                ->get();
+
+            $data['exsting_teams']  = ProjectTeam::where('project_id', $project_id)
+                                                   ->where('association_type_term', config('custom.association_type_term.our_team'))
+                                                   ->pluck('association_id')
+                                                   ->toArray();
+
+
+        }
+        return view("pages.project.tabs.$tab", $data);
     }
 
     public function load_dynamic_tab($project_id,$level_no)

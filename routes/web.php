@@ -235,7 +235,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('edit/{id?}', [ProjectController::class, 'edit'])->name('edit');
         Route::get('/project/{project_id}/tab/{tab}', [ProjectController::class, 'load_static_tab'])->name('tab_static');
         Route::get('/project/{project_id}/tab/level/{level_no}', [ProjectController::class, 'load_dynamic_tab'])->name('tab_level');
-
+        Route::post('store_project_member', [ProjectController::class, 'store_project_member'])->name('store_project_member');
+        Route::post('remove_project_member', [ProjectController::class, 'remove_project_member'])->name('remove_project_member');
         // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
     });
 

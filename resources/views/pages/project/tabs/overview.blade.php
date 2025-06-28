@@ -36,51 +36,40 @@
     .info-value {
       font-weight: 600;
     }
-    .team-avatar {
+      .team-avatar {
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background-color: #f0f0f0;
+      object-fit: cover;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .team-item.active .team-avatar {
+      border-color: #28a745;
+    }
+    .checkmark {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      background-color: #28a745;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      margin-right: 10px;
+      align-items: center;
+      font-size: 12px;
+      color: white;
     }
     .team-member {
       display: flex;
       align-items: center;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 15px;
+      position: relative;
     }
-    .tab-pane .col-md-6 {
-      padding: 5px 15px;
-    }
-    .border-divider {
-      border-top: 1px solid #dee2e6;
-      margin-top: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .team-tabs .nav-link {
-      color: #6c757d;
-      font-weight: 500;
-    }
-    .team-tabs .nav-link.active {
-      color: #000;
-      border-bottom: 2px solid #000;
-    }
-    .milestone-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px 0;
-    }
-    .metrics-value {
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .metrics-label {
-      font-size: 14px;
-      color: #6c757d;
+    .tab-content {
+      padding-top: 15px;
     }
   </style>
 
@@ -167,11 +156,11 @@
             </div>
 
             <h5 class="fw-bold mb-3">Milestone Highlights</h5>
-            <div class="milestone-row"><span>Kick-off Workshop</span><span class="fw-semibold">Completed</span></div>
-            <div class="milestone-row"><span>Tier Classification</span><span class="fw-semibold">Finalized</span></div>
-            <div class="milestone-row"><span>SharePoint Repository Setup</span><span class="fw-semibold">In Progress</span></div>
-            <div class="milestone-row"><span>EXCO Review Scheduled</span><span class="fw-semibold">15/06/2025</span></div>
-            <div class="milestone-row"><span>Final Documentation</span><span class="fw-semibold">Due 25/06/2025</span></div>
+            <div class="milestone-row"><span>Kick-off Workshop :</span><span class="fw-semibold"> Completed</span></div>
+            <div class="milestone-row"><span>Tier Classification :</span><span class="fw-semibold"> Finalized</span></div>
+            <div class="milestone-row"><span>SharePoint Repository Setup :</span><span class="fw-semibold"> In Progress</span></div>
+            <div class="milestone-row"><span>EXCO Review Scheduled :</span><span class="fw-semibold"> 15/06/2025</span></div>
+            <div class="milestone-row"><span>Final Documentation :</span><span class="fw-semibold"> Due 25/06/2025</span></div>
             </div>
 
             <!-- Team Section -->
@@ -186,20 +175,134 @@
             <div class="tab-content">
                 <!-- Our Team Tab -->
                 <div class="tab-pane fade show active" id="our-team">
-                <div class="row">
-                    @foreach ($our_teams as $teams)
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                          <h5 class="mb-0">Our Team</h5>
+                          <div class="d-flex gap-2">
+                            
+                            <a class="btn btn-outline-primary btn-sm" id="addTeamMemberBtn" title="Add Team Member"
+                                data-bs-toggle="modal" data-bs-target="#teamMemberModal">
+                                <i class="bx bx-plus-circle"></i>
+                            </a>
+
+                          </div>
+                      </div>
+                    <div class="row">
                         @php
-                            $teamImage = !empty($teams->profilepicture) && config('filesystems.default') == 's3'
-                                ? env('AWS_URL') . $teams->profilepicture
-                                : (!empty($teams->profilepicture)
-                                    ? url($teams->profilepicture)
+                            $our_team_ids = collect($exsting_teams['our_team'] ?? [])->pluck('association_id')->toArray();
+                            $our_team_designation = collect($exsting_teams['our_team'] ?? [])->pluck('designation','association_id')->toArray();
+                        @endphp
+
+                        @foreach ($our_teams as $teams)
+                            @php
+                                $teamImage = !empty($teams->profilepicture) && config('filesystems.default') == 's3'
+                                    ? env('AWS_URL') . $teams->profilepicture
+                                    : (!empty($teams->profilepicture)
+                                        ? url($teams->profilepicture)
+                                        : url('/no_image.jpg'));
+
+                                $selected_team = in_array($teams->id, $our_team_ids);
+                            @endphp
+
+                            <div class="col-6 col-md-4 mb-3 team-member {{ $selected_team ? 'active' : '' }}" data-id="{{ $teams->id }}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="position-relative">
+                                        <img src="{{ $teamImage }}"
+                                            class="team-avatar {{ $selected_team ? 'border border-2 border-success' : '' }}"
+                                            style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+
+                                        @if ($selected_team)
+                                            <!-- Green check -->
+                                            <div class="checkmark">✔</div>
+
+                                            <!-- Remove button -->
+                                            <button class="btn btn-sm btn-danger position-absolute top-0 start-0 translate-middle removeMemberBtn"
+                                                    title="Remove" style="font-size: 0.6rem; line-height: 1;" data-member-id="{{ $teams->id }}"
+                                                    data-association-type="{{config('custom.association_type_term.our_team')}}">
+                                                ×
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ $teams->name }}</div>
+                                        <div class="text-muted small">{{ $our_team_designation[$teams->id] ?? '—' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+
+                <!-- Client Team Tab -->
+                <div class="tab-pane fade" id="client-team">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                          <h5 class="mb-0">Client Team</h5>
+                          <div class="d-flex gap-2">
+                            <a class="btn btn-outline-primary btn-sm" id="addTeamMemberBtn" title="Add Team Member"
+                                data-bs-toggle="modal" data-bs-target="#clientMemberModal">
+                                <i class="bx bx-plus-circle"></i>
+                            </a>
+                          </div>
+                      </div>
+                    <div class="row">
+                        @php
+                            $client_team_ids = collect($exsting_teams['client_contact'] ?? [])->pluck('association_id')->toArray();
+                            $client_team_designation = collect($exsting_teams['client_contact'] ?? [])->pluck('designation','association_id')->toArray();
+                        @endphp
+
+                        @foreach ($client_teams as $teams)
+                            @php
+                                $clientImage = !empty($teams->profile_pic) && config('filesystems.default') == 's3'
+                                ? env('AWS_URL') . $teams->profile_pic
+                                : (!empty($teams->profile_pic)
+                                    ? url($teams->profile_pic)
                                     : url('/no_image.jpg'));
-                                
-                                $selected_team = in_array( $teams->id, $exsting_teams);
+
+                                $selected_team = in_array($teams->id, $client_team_ids);
+                            @endphp
+
+                            <div class="col-6 col-md-4 mb-3 team-member {{ $selected_team ? 'active' : '' }}" data-id="{{ $teams->id }}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="position-relative">
+                                        <img src="{{ $clientImage }}"
+                                            class="team-avatar {{ $selected_team ? 'border border-2 border-success' : '' }}"
+                                            style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+
+                                        @if ($selected_team)
+                                            <!-- Green check -->
+                                            <div class="checkmark">✔</div>
+
+                                            <!-- Remove button -->
+                                            <button class="btn btn-sm btn-danger position-absolute top-0 start-0 translate-middle removeMemberBtn"
+                                                    title="Remove" style="font-size: 0.6rem; line-height: 1;" data-member-id="{{ $teams->id }}"
+                                                data-association-type="{{config('custom.association_type_term.client_contact')}}">
+                                                ×
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ $teams->name }}</div>
+                                        <div class="text-muted small">{{ $client_team_designation[$teams->id] ?? '—' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- MIA Agents Tab -->
+                <div class="tab-pane fade" id="mia-agents">
+                <div class="row">
+                    @php
+                    $mia_team_ids = collect($exsting_teams['mia_agent'] ?? [])->pluck('association_id')->toArray();
+                    @endphp
+                    @foreach ($agents as $teams)
+                        @php
+                          $selected_team = in_array( $teams->id, $mia_team_ids);
                         @endphp
                             <div class="col-4 team-member">
                                 <div class="position-relative">
-                                    <img src="{{ $teamImage }}"
+                                    <img src="{{ $teams->image }}"
                                         class="team-avatar {{ $selected_team ? 'border border-3 border-primary shadow-sm' : '' }}">
                                     @if($selected_team)
                                         <i class="bi bi-check-circle-fill position-absolute top-0 start-100 translate-middle text-primary bg-white rounded-circle"
@@ -210,57 +313,7 @@
                                     <div class="fw-semibold">{{ $teams->name }}</div>
                                 </div>
                             </div>
-                    @endforeach
-                    
-                </div>
-                </div>
-
-                <!-- Client Team Tab -->
-                <div class="tab-pane fade" id="client-team">
-                <div class="row">
-                    <div class="col-4 team-member">
-                    <img src="https://via.placeholder.com/56" class="team-avatar">
-                    <div>Floyd</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://via.placeholder.com/56" class="team-avatar">
-                    <div>Jenny</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://via.placeholder.com/56" class="team-avatar">
-                    <div>Ralph</div>
-                    </div>
-                </div>
-                </div>
-
-                <!-- MIA Agents Tab -->
-                <div class="tab-pane fade" id="mia-agents">
-                <div class="row">
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=12" class="team-avatar">
-                    <div>Ruva</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=33" class="team-avatar">
-                    <div>Tana</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=23" class="team-avatar">
-                    <div>Kayo</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=15" class="team-avatar">
-                    <div>Zali</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=29" class="team-avatar">
-                    <div>Bako</div>
-                    </div>
-                    <div class="col-4 team-member">
-                    <img src="https://i.pravatar.cc/100?img=37" class="team-avatar">
-                    <div>Neli</div>
-                    </div>
-                </div>
+                      @endforeach            
                 </div>
             </div>
             </div>
@@ -268,4 +321,225 @@
     </div>
     
 
+<!-- Team Member Modal -->
+<div class="modal fade" id="teamMemberModal" tabindex="-1" aria-labelledby="teamMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
 
+      <div class="modal-header">
+        <h5 class="modal-title" id="teamMemberModalLabel">Add Team Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="teamMemberForm">
+          <div class="mb-3">
+            <label for="our_team_member_select" class="form-label">Select Member</label>
+            <select id="our_team_member_select" name="our_team" class="form-select">
+              <option value="">-- Select Member --</option>
+              @foreach($our_teams as $member)
+                @if(!in_array((int)$member->id, $our_team_ids))
+                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                @endif
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="our_team_designation_select" class="form-label">Select Designation</label>
+            <select id="our_team_designation_select" name="our_team_designation" class="form-select">
+              <option value="">-- Select Designation --</option>
+              @foreach(config('custom.designation_term') as $designation)
+                <option value="{{ $designation }}">{{ $designation }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Project Role</label>
+             <input type="text" class="form-control" placeholder="Project Role" id="our_project_role_term" name="our_project_role_term">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTeamMemberBtn">Add Member</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+<!--  -->
+<!-- Client Member Modal -->
+<div class="modal fade" id="clientMemberModal" tabindex="-1" aria-labelledby="clientMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="clientMemberModalLabel">Add Client</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="teamMemberForm">
+          <div class="mb-3">
+            <label for="client_team_member_select" class="form-label">Select Member</label>
+            <select id="client_team_member_select" name="our_team" class="form-select">
+              <option value="">-- Select Member --</option>
+              @foreach($client_teams as $member)
+                @if(!in_array((int)$member->id, $client_team_ids))
+                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                @endif
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="client_team_designation_select" class="form-label">Select Designation</label>
+            <select id="client_team_designation_select" name="our_team_designation" class="form-select">
+              <option value="">-- Select Designation --</option>
+              @foreach(config('custom.designation_term') as $designation)
+                <option value="{{ $designation }}">{{ $designation }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Project Role</label>
+             <input type="text" class="form-control" placeholder="Project Role" id="client_project_role_term" name="client_project_role_term">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveClientMemberBtn">Add Member</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function () {
+
+    $('#saveTeamMemberBtn').on('click', function (e) {
+        e.preventDefault();
+        var member_id = $('#our_team_member_select').val();
+        var designation = $('#our_team_designation_select').val();
+        var project_role_term = $('#our_project_role_term').val();
+        var project_id = "{{$project_details->project_id}}";
+
+        if (!member_id || !designation) {
+            showErrorMessage('Please select both fields.');
+            return;
+        }
+        showLoadingDialog();
+        $.ajax({
+            url: "{{ route('project.store_project_member') }}", 
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                member_id: member_id,
+                designation: designation,
+                project_id: project_id,
+                client_id: "{{$project_details->client_id}}",
+                customer_id: "{{$project_details->customer_id}}",
+                association_type_term: "{{config('custom.association_type_term.our_team')}}",
+            },
+            success: function (response) {
+                hideLoadingDialog();
+                $('#teamMemberModal').modal('hide');
+                showSuccessMessage(response.message);
+                location.reload(); 
+            },
+            error: function (xhr) {
+                hideLoadingDialog();
+                showErrorMessage('Failed to add member. Please try again.');
+            }
+        });
+    });
+
+    $('#saveClientMemberBtn').on('click', function (e) {
+        e.preventDefault();
+        var member_id = $('#client_team_member_select').val();
+        var designation = $('#client_team_designation_select').val();
+        var project_role_term = $('#client_project_role_term').val();
+        var project_id = "{{$project_details->project_id}}";
+
+        if (!member_id || !designation) {
+            showErrorMessage('Please select both fields.');
+            return;
+        }
+        showLoadingDialog();
+        $.ajax({
+            url: "{{ route('project.store_project_member') }}", 
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                member_id: member_id,
+                designation: designation,
+                project_id: project_id,
+                client_id: "{{$project_details->client_id}}",
+                customer_id: "{{$project_details->customer_id}}",
+                association_type_term: "{{config('custom.association_type_term.client_contact')}}",
+            },
+            success: function (response) {
+                hideLoadingDialog();
+                $('#clientMemberModal').modal('hide');
+                showSuccessMessage(response.message);
+                location.reload(); 
+            },
+            error: function (xhr) {
+                hideLoadingDialog();
+                showErrorMessage('Failed to add member. Please try again.');
+            }
+        });
+    });
+// removeMemberBtn
+
+    $('.removeMemberBtn').on('click', function (e) {
+            e.preventDefault();
+            var memberId = $(this).data('member-id');
+            var associationType = $(this).data('association-type');
+            var project_id = "{{$project_details->project_id}}";
+
+            
+            confirmDialogMessage('Delete', 'Are you sure want to delete ?', () => {
+                    showLoadingDialog();
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        type: 'POST',
+                        url: "{{ route('project.remove_project_member') }}",
+                        data: {
+                            association_id: memberId,
+                            association_type_term: associationType,
+                            project_id: project_id,
+                        },
+                        cache: false,
+                        success: function(data) {
+                            hideLoadingDialog();
+                            if (data.status == 1) {
+                                showSuccessMessage(data.message)
+                                location.reload();
+                            } else {
+                                showErrorMessage(data.message)
+                            }
+
+                        },
+                        error: function(jqXHR, textStatus, ex) {
+
+                            console.log(jqXHR.responseText);
+
+                        }
+                    });
+
+                });
+        });
+
+    });
+</script>

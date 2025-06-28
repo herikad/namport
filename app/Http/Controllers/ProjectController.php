@@ -385,10 +385,31 @@ class ProjectController extends Controller
                                                 ->where('customer_id', $customer_id)
                                                 ->get();
 
-            $data['exsting_teams']  = ProjectTeam::where('project_id', $project_id)
-                                                   ->where('association_type_term', config('custom.association_type_term.our_team'))
-                                                   ->pluck('association_id')
-                                                   ->toArray();
+            $data['exsting_teams'] = ProjectTeam::where('project_id', $project_id)
+                                                ->get()
+                                                ->groupBy('association_type_term')
+                                                ->map(function ($items) {
+                                                     return $items->map(function ($item) {
+                                                        return [
+                                                            'association_id'  => $item->association_id,
+                                                            'designation'     => $item->designation,
+                                                        ];
+                                                    })->toArray();
+                                                })
+                                                ->toArray();
+
+            $data['client_teams'] = ClientContacts::where('profile_status_term', config('custom.profile_status_term.completed'))
+                                                    ->where('is_active', 1)
+                                                    ->where('status_term', config('custom.status_term.active'))
+                                                    ->select('client_contacts_id as id', 'display_name as name','profile_pic')
+                                                    ->orderBy('display_name')
+                                                    ->where('customer_id', $customer_id)
+                                                    ->get();
+
+            $data['agents'] = MstMiaAgent::where('is_active', 1)
+                                    ->where('customer_id', $customer_id)
+                                    ->orderBy('mia_agent_id')
+                                    ->get(['mia_agent_id as id', 'nameofagent as name', 'agentpersonafile as image']);
 
 
         }
@@ -408,5 +429,52 @@ class ProjectController extends Controller
         return view($view, compact('level'));
     }
 
+    public function store_project_member(Request $request){
+        $team                        = new ProjectTeam;
+        $team->project_id            = $request->project_id;
+        $team->client_id             = $request->client_id;
+        $team->customer_id           = $request->customer_id;
+        $team->association_id        = $request->member_id;
+        $team->association_type_term = $request->association_type_term;
+        $team->designation           = $request->designation;
+        $team->project_role_term     = $request->association_type_term;
+        $team->assigned_at           = date('Y-m-d H:i:s');
+        $team->assigned_by           = auth()->user()->association_id;
+        $team->save();
 
+        if ($request->association_type_term == config('custom.association_type_term.our_team')) {
+           $message = "Team member added successfully.";
+        } else {
+           $message = "Client added successfully.";
+        }
+
+        return response()->json([
+            'status'       => 1,
+            'success'      => true,
+            'message'      => $message
+        ], 200);
+    }
+
+    public function remove_project_member(Request $request){
+        $record = ProjectTeam::where([
+            'project_id'            => $request->project_id,
+            'association_id'        => $request->association_id,
+            'association_type_term' => $request->association_type_term,
+        ])->first();
+
+        if (!$record) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Record not found.'
+            ], 404);
+        }
+
+        $record->delete();
+
+        return response()->json([
+            'status'       => 1,
+            'success'      => true,
+            'message'      => 'Member removed successfully.'
+        ], 200);
+    }
 }

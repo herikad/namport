@@ -419,14 +419,18 @@ class ProjectController extends Controller
     public function load_dynamic_tab($project_id,$level_no)
     {
         $project_id = \Helper::dnc($project_id);
-        $level = ProjectProcessFramework::where('level_no', $level_no)->firstOrFail();
+        if ($level_no == '1') {
+            $level = ProjectProcessFramework::where('level_no', $level_no)->where('project_id', $project_id)->first();
+            $dynamicColumns =  ProjectProcessFramework::where('project_id', $project_id)->where('level_no','!=',$level_no)->select('level_no','level_name')->get()->toArray();
+        }
+
         $view = "pages.project.tabs.level_$level_no";
 
         if (!view()->exists($view)) {
             return "<div class='alert alert-warning'>View for level $level_no not found.</div>";
         }
 
-        return view($view, compact('level'));
+        return view($view, compact('level','dynamicColumns'));
     }
 
     public function store_project_member(Request $request){

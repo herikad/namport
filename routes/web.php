@@ -238,6 +238,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('store_project_member', [ProjectController::class, 'store_project_member'])->name('store_project_member');
         Route::post('remove_project_member', [ProjectController::class, 'remove_project_member'])->name('remove_project_member');
         // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
+
+        Route::post('level_1_store', [ProjectController::class, 'level_1_store'])->name('level_1_store');
+
     });
 
     Route::group(['prefix' => 'notification', 'as' => 'notification.'], function () {

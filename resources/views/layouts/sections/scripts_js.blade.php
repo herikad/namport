@@ -902,4 +902,44 @@
 
     }
 
+    let fileList = [];
+    function multipalHandleFiles(files) {
+      
+      const $previewArea = $("#previewArea");
+      Array.from(files).forEach((file) => {
+        if (fileList.find(f => f.name === file.name && f.size === file.size)) {
+          return;
+        }
+
+        fileList.push(file);
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const isImage = file.type.startsWith("image/");
+          const $card = $(`
+            <div class="upload-card">
+              ${isImage
+                ? `<img src="${e.target.result}">`
+                : `<img src="/no_image.jpg">`}
+              <div class="meta">
+                <div>${file.name}</div>
+                <small><em>${(file.size / 1024).toFixed(1)} KB</em></small>
+              </div>
+              <button type="button">Remove file</button>
+            </div>
+          `);
+
+          $card.find("button").on("click", function () {
+            $card.remove();
+            fileList = fileList.filter(f => !(f.name === file.name && f.size === file.size));
+          });
+
+          $previewArea.append($card);
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
 </script>

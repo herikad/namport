@@ -9,6 +9,7 @@ use App\Models\MstProcessFramework;
 use App\Models\Project;
 use App\Models\ProjectProcessFramework;
 use App\Models\ProjectTeam;
+use App\Models\ProcessMapping;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -419,9 +420,40 @@ class ProjectController extends Controller
     public function load_dynamic_tab($project_id,$level_no)
     {
         $project_id = \Helper::dnc($project_id);
+        $data = [];
         if ($level_no == '1') {
-            $level = ProjectProcessFramework::where('level_no', $level_no)->where('project_id', $project_id)->first();
-            $dynamicColumns =  ProjectProcessFramework::where('project_id', $project_id)->where('level_no','!=',$level_no)->select('level_no','level_name')->get()->toArray();
+
+            $data['level'] = ProjectProcessFramework::where('level_no', $level_no)->where('project_id', $project_id)->first();
+            $data['dynamicColumns'] =  ProjectProcessFramework::where('project_id', $project_id)->where('level_no','!=',$level_no)->select('level_no','level_name')->get()->toArray();
+
+            $lastId = ProcessMapping::max('id'); 
+            $data['process_id'] = $lastId ? ($lastId + 1) : '1';
+            $data['stake_holders'] = ProjectTeam::where('project_id', $project_id)
+                                                ->where('association_type_term', config('custom.association_type_term.client_contact'))
+                                                 ->with('clientContact')
+                                                 ->get();
+
+            $data['employees'] = ProjectTeam::where('project_id', $project_id)
+                                                ->where('association_type_term', config('custom.association_type_term.our_team'))
+                                                 ->with('employee')
+                                                 ->get();
+
+            $data['mia_agents'] = ProjectTeam::where('project_id', $project_id)
+                                            ->where('association_type_term', config('custom.association_type_term.mia_agent'))
+                                            ->with('miaAgent')
+                                            ->get();
+            $data['status_term']   = config('custom.profile_status_term');
+            $data['priority_term']   = config('custom.peiority_term');
+
+            $data['workflows'] = [
+                (object)['id' => 1, 'name' => 'Welcome Call'],
+                (object)['id' => 2, 'name' => 'Abandoned Cart Follow-up'],
+                (object)['id' => 3, 'name' => 'Feedback Collection'],
+                (object)['id' => 4, 'name' => 'Reactivation Campaign'],
+                (object)['id' => 5, 'name' => 'Order Confirmation'],
+            ];
+
+
         }
 
         $view = "pages.project.tabs.level_$level_no";
@@ -430,7 +462,7 @@ class ProjectController extends Controller
             return "<div class='alert alert-warning'>View for level $level_no not found.</div>";
         }
 
-        return view($view, compact('level','dynamicColumns'));
+        return view($view,$data);
     }
 
     public function store_project_member(Request $request){
@@ -480,5 +512,9 @@ class ProjectController extends Controller
             'success'      => true,
             'message'      => 'Member removed successfully.'
         ], 200);
+    }
+
+    public function level_1_store(Request $request){
+        dd($request->all());
     }
 }

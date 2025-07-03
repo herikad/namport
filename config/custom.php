@@ -106,4 +106,10 @@ return [
         'devops_engineer' => 'DevOps Engineer',
         'technical_support' => 'Technical Support',
     ],
+
+    'peiority_term' => [
+        'low'   => 'Low',
+        'medium' => 'Medium',
+        'high' => 'High',
+    ],
 ];

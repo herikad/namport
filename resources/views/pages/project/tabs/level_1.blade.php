@@ -66,30 +66,31 @@
 
 <!-- Table Design -->
 <div class="table-responsive">
-    <table class="table table-hover align-middle table-bordered shadow-sm">
-        <thead class="table-light">
-            <tr class="align-middle text-center">
-                <th scope="col" style="width: 50px;">#</th>
-                <th scope="col">{{ $level->level_name }}</th>
-                <th scope="col">CEO</th>
-                <th scope="col">MIA</th>
-                @foreach($dynamicColumns as $col)
-                    <th scope="col" data-level-no="{{$col['level_no']}}">{{ $col['level_name'] }}</th>
-                @endforeach
-                <th scope="col">Priority</th>
-                <th scope="col" style="min-width: 120px;">Progress</th>
-                <th scope="col" style="width: 80px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody id="categoryTableBody">
-            {{-- Loop rows here --}}
-        </tbody>
-    </table>
+    <table class="table table-hover align-middle table-bordered shadow-sm" id="categoryTable">
+      <thead class="table-light">
+          <tr class="align-middle text-center">
+              <th scope="col" style="width: 50px;">#</th>
+              <th scope="col">{{ $level->level_name }}</th>
+              <th scope="col">CEO</th>
+              <th scope="col">MIA</th>
+              @foreach($dynamicColumns as $col)
+                  <th scope="col" data-level-no="{{$col['level_no']}}">{{ $col['level_name'] }}</th>
+              @endforeach
+              <th scope="col">Priority</th>
+              <th scope="col" style="min-width: 120px;">Progress</th>
+              <th scope="col" style="width: 80px;">Actions</th>
+          </tr>
+      </thead>
+      <tbody id="categoryTableBody">
+         
+      </tbody>
+  </table>
+
 </div>
 
 
 <!-- Add Category Modal -->
-<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-xl">
     <div class="modal-content p-3">
       <div class="modal-header border-0">
@@ -99,6 +100,9 @@
       <form id="categoryForm">
         <div class="modal-body">
           <div class="row mb-3">
+            <input type="hidden" name="project_id" id="project_id" value="{{$project_id}}">
+            <input type="hidden" name="level1id" id="level1id" value="{{$level->proj_process_framework_id}}">
+            <input type="hidden" name="level_no" id="level_no" value="{{$level->level_no}}">
             <div class="col-md-6">
               <label class="form-label fw-semibold">Process ID</label>
               <div class="form-control bg-light">#{{$process_id}}</div>
@@ -200,7 +204,7 @@
 
           <div class="mb-2">
             <label class="form-label fw-semibold">Workflow</label>
-            <select  name="mia_id" class="form-select">
+            <select  name="workflow_id" class="form-select">
                 <option value="">-- Select Workflow --</option>
                 @foreach($workflows as $wkflow)
                       <option value="{{ $wkflow->id }}">{{ $wkflow->name }}</option>
@@ -230,133 +234,19 @@
   </div>
 </div>
 
+<script src="{{asset('assets/js/project/level_1.js')}}"></script>
+@php
+    $formattedLevels = collect($dynamicColumns)->pluck('level_name')->map(function ($name) {
+        $name = strtolower($name);
+        $name = preg_replace('/[^a-z0-9]+/', '_', $name);
+        return trim($name, '_');
+    })->values();
+@endphp
 
 <script>
-  $(document).ready(function () {
-      CKEDITOR.replace('detail_description', {
-          height: 200
-      });
-  });
+    window.dynamicColumns = @json($formattedLevels);
 </script>
 
-<script>
-  $(document).ready(function () {
-    const $dropArea = $("#dropArea");
-    const $fileInput = $("#fileInput");
 
-    // Drag-over prevents default
-    $(document).on("dragover drop", function (e) {
-      e.preventDefault();
-    });
-
-    $dropArea.on("click", function () {
-      // only trigger click, don't rebind or attach anything
-      document.getElementById("fileInput").click();
-    });
-
-    $dropArea.on("dragover", function (e) {
-      e.preventDefault();
-      $(this).css("border-color", "blue");
-    });
-
-    $dropArea.on("dragleave", function () {
-      $(this).css("border-color", "#ccc");
-    });
-
-    $dropArea.on("drop", function (e) {
-      e.preventDefault();
-      $(this).css("border-color", "#ccc");
-      multipalHandleFiles(e.originalEvent.dataTransfer.files);
-    });
-
-    $fileInput.off("change").on("change", function () {
-      // clear previous stack of files before triggering again
-      multipalHandleFiles(this.files);
-      $(this).val('');
-    });
-  });
-</script>
-
-<!-- Store data -->
-<script>
-$(document).ready(function () {
-
-    $('#categoryForm').submit(function (e) {
-        e.preventDefault(); 
-
-          $('.is-invalid').removeClass('is-invalid');
-          $('.ck_editor_validate_msg').text('');
-
-        for (instance in CKEDITOR.instances) {
-          CKEDITOR.instances[instance].updateElement();
-        }
-
-
-        let hasError = false;
-
-        if (!$('input[name="processname"]').val().trim()) {
-            $('input[name="processname"]').addClass('is-invalid');
-            hasError = true;
-        }
-
-        if (!$('input[name="processdetail"]').val().trim()) {
-            $('input[name="processdetail"]').addClass('is-invalid');
-            hasError = true;
-        }
-
-        if (!$('#description').val().trim()) {
-            $('.ck_editor_validate_msg').text('Description is required').css('color', 'red');
-            hasError = true;
-        }
-
-        if (!$('select[name="employee_id"]').val()) {
-            $('select[name="employee_id"]').addClass('is-invalid');
-            hasError = true;
-        }
-
-        if (!$('select[name="mia_id"]').val()) {
-            $('select[name="mia_id"]').addClass('is-invalid');
-            hasError = true;
-        }
-
-        $('.teamids-error').remove();
-        $('input[name="teamids[]"]').removeClass('is-invalid');
-
-        if ($('input[name="teamids[]"]:checked').length === 0) {
-          $('input[name="teamids[]"]').first().addClass('is-invalid');
-          $('input[name="teamids[]"]').last().parent().after('<div class="text-danger teamids-error mt-1">Please select at least one stakeholder.</div>');
-          hasError = true;
-        }
-
-        if (hasError) {
-            return;
-        }
-
-        var formData = new FormData(this); 
-        fileList.forEach((file, index) => {
-          formData.append('attachments[]', file);
-        });
-
-        $.ajax({
-            url: assetBaseUrl + 'project/level_1_store',
-            type: 'POST',
-            data: formData,
-            processData: false, 
-            contentType: false,
-            success: function (response) {
-                alert(response.message); 
-                $('#categoryForm')[0].reset(); 
-            },
-            error: function (xhr) {
-                let msg = xhr.responseJSON?.message || 'Something went wrong';
-                alert(msg);
-            }
-        });
-    });
-
-
-
-});
-</script>
 
 

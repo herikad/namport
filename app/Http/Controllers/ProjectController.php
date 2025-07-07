@@ -10,6 +10,7 @@ use App\Models\Project;
 use App\Models\ProjectProcessFramework;
 use App\Models\ProjectTeam;
 use App\Models\ProcessMapping;
+use App\Models\MettingSchedules;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -255,7 +256,7 @@ class ProjectController extends Controller
         try {
             $page_index = (int)$request->input('start') > 0 ? ($request->input('start') / $request->input('length')) + 1 : 1;
 
-            $limit = (int)$request->input('length') > 0 ? $request->input('length') : DEFAULT_RECORDS_LIMIT;
+            $limit = (int)$request->input('length') > 0 ? $request->input('length') : 10;
             $columnIndex = $request->input('order')[0]['column']; // Column index
             $columnName = $request->input('columns')[$columnIndex]['data']; // Column name
             $columnSortOrder = $request->input('order')[0]['dir']; // asc or desc value
@@ -421,13 +422,14 @@ class ProjectController extends Controller
     {
         $project_id = \Helper::dnc($project_id);
         $data = [];
+        $data['project_id'] = $project_id;
         if ($level_no == '1') {
 
             $data['level'] = ProjectProcessFramework::where('level_no', $level_no)->where('project_id', $project_id)->first();
             $data['dynamicColumns'] =  ProjectProcessFramework::where('project_id', $project_id)->where('level_no','!=',$level_no)->select('level_no','level_name')->get()->toArray();
 
-            $lastId = ProcessMapping::max('id'); 
-            $data['process_id'] = $lastId ? ($lastId + 1) : '1';
+            $lastId = ProcessMapping::where('project_id', $project_id)->where('level1id','!=',NULL)->count();
+            $data['process_id'] = $level_no .'.' . ($lastId ? ($lastId) : '');
             $data['stake_holders'] = ProjectTeam::where('project_id', $project_id)
                                                 ->where('association_type_term', config('custom.association_type_term.client_contact'))
                                                  ->with('clientContact')
@@ -515,6 +517,267 @@ class ProjectController extends Controller
     }
 
     public function level_1_store(Request $request){
-        dd($request->all());
+     //    try {
+        $project = Project::where('project_id', $request->project_id)->first();
+        if ($project) {
+            $process = new ProcessMapping;
+            $process->project_id  = $request->project_id;
+            $process->client_id  = $project->client_id;
+            $process->customer_id  = $project->customer_id;
+            $process->workflow_id  = $request->workflow_id;
+            $process->level1id  = $request->level1id;
+            $process->process_id  = $request->process_id;
+            $process->processno  = $request->processno;
+            $process->processname  = $request->processname;
+            $process->processdetail  = $request->processdetail;
+            $process->detail_description  = $request->detail_description;
+            $process->employee_id  = $request->employee_id;
+            $process->mia_id  = $request->mia_id;
+            $process->status_term  = $request->status_term;
+            $process->priority_term  = $request->priority_term;
+            $process->teamids  = json_encode($request->teamids);
+            $process->save();
+
+            if (isset($request->attachments)) {
+                $uploaded_paths = [];
+                if ($request->hasFile('attachments')) {
+                    foreach ($request->file('attachments') as $attachment) {
+                        if ($attachment->isValid()) {
+                            $unique_name = 'attachment_' . rand(100, 9999) . time() . '.' . $attachment->getClientOriginalExtension();
+
+                            $path = \Helper::upload_file(
+                                $attachment,
+                                $unique_name,
+                                'uploads/attachments' 
+                            );
+
+                            $uploaded_paths[] = $path; 
+                        }
+                    }
+                }
+                $process->attachments_id = json_encode($uploaded_paths);
+                $process->save();
+            }
+
+            // if ($process) {
+            //     $meeting_schedules = new MettingSchedules;
+            //     $meeting_schedules->association_id = $process->id;
+            //     $meeting_schedules->association_type_term = "prj_processmaping";
+            //     $meeting_schedules->project_id  = $request->project_id;
+            //     $meeting_schedules->client_id  = $project->client_id;
+            //     $meeting_schedules->customer_id  = $project->customer_id;
+            //     $meeting_schedules->mia_agent_id  = $request->mia_id;
+            //     $meeting_schedules->save();
+            // }
+
+            return response()->json([
+                'status' => 1,
+                'success' => true,
+                'message' => 'Level 1 store sucessfuly.'
+            ], 200);
+
+        }
+        
+        // } catch (\Throwable $th) {
+        //     Log::info("level_1_error ". print_r($e->getMessage(), true));
+            // return response()->json([
+            //     'message' => 'something went wrong'
+            // ], 200);
+        // }
     }
+
+    // public function level_json_data(Request $request){
+
+    //         // $page_index = (int)$request->input('start') > 0 ? ($request->input('start') / $request->input('length')) + 1 : 1;
+
+    //         // $limit = (int)$request->input('length') > 0 ? $request->input('length') : 10;
+    //         // $columnIndex = $request->input('order')[0]['column']; // Column index
+    //         // $columnName = $request->input('columns')[$columnIndex]['data']; // Column name
+    //         // $columnSortOrder = $request->input('order')[0]['dir']; // asc or desc value
+
+    //         $main_query =  ProcessMapping::from('prj_processmaping as processmaping')
+    //                                 ->where('project_id', $request->project_id)
+    //                                 ->join('mst_miaagents as mia', 'mia.mia_agent_id', '=','processmaping.mia_id')
+    //                                 ->join('mst_employee as employee', 'employee.employee_id', '=','processmaping.employee_id');
+    //         if ($request->level_no == '1') {
+    //           $main_query =  $main_query->where('level1id', $request->proj_process_framework_id);
+    //         }
+    //          $main_query =  $main_query->select(
+    //                                     'processmaping.process_id',
+    //                                     'processmaping.processname',
+    //                                     'mia.nameofagent',
+    //                                     'mia.agentpersonafile',
+    //                                     'employee.display_name as employee_name',
+    //                                     'processmaping.priority_term',
+    //                                     'processmaping.progress',
+    //                                     'processmaping.level1id',
+    //                                     'processmaping.level2id',
+    //                                     'processmaping.level3id',
+    //                                     'processmaping.level4id',
+    //                                     'processmaping.level5id',
+    //                                     'processmaping.level6id',
+    //                                     'processmaping.level7id'
+    //                                 );
+
+
+    //         // $main_query =  $main_query->orderBy($columnName, $columnSortOrder);
+
+    //         $data_list_for_count = $main_query->get();  // group by and direct count not working
+
+    //         $recordsTotal = count($data_list_for_count);
+
+    //         $recordsFiltered = $recordsTotal;
+
+    //         if(empty($request->input('search.value'))){
+
+    //             $appointments = $main_query->paginate($limit, ['*'], 'page', $page_index);
+
+    //         }else {
+
+    //             $search = $request->input('search.value');
+
+    //             $search_query = $main_query->where(function ($query) use ($search) {
+    //                 $query->where('department.department_code', 'LIKE', "%{$search}%")
+    //                     ->orWhere('department.department_name', 'LIKE', "%{$search}%")
+    //                     ->orWhere('department.short_description', 'LIKE', "%{$search}%")
+    //                     ->orWhere('client.company_name', 'LIKE', "%{$search}%");
+    //             });
+
+    //             $appointments = $search_query->paginate($limit, ['*'], 'page', $page_index);
+
+    //             $search_list_for_count = $search_query->get();  // group by and direct count not working
+
+    //             $recordsFiltered = count($search_list_for_count);
+
+    //         }
+
+    //         // foreach ($appointments as $key => $value) {
+                
+    //         //     if($request->level_no == '1'){
+    //         //         $levels = ProjectProcessFramework::where('project_id', $request->project_id)
+    //         //                                         ->where('level_no','!=',$value->level1id)
+    //         //                                         ->select('proj_process_framework_id','level_name','level_no')
+    //         //                                         ->get()
+    //         //                                         ->toArray();
+
+    //         //         foreach ($levels as $level) {
+    //         //             $key = (string) $level['proj_process_framework_id']; // cast to string
+    //         //             $value->$key = $level['level_name'];
+    //         //         }
+    //         //     }
+    //         // }
+    //         // dd($appointments);
+
+    //         $data_arr = [];
+
+    //         foreach ($appointments as $appointment) {
+
+    //             // Fixed fields
+    //             $row['id'] = $appointment->process_id;
+    //             $row['processname'] = $appointment->processname ?? '';
+    //             $row['ceo'] = $appointment->teamids ?? '';
+    //             $row['mia'] = $appointment->mia ?? '';
+
+    //             // Dynamic levels (only if level_no == 1)
+    //             if ($request->level_no == '1') {
+    //                 $levels = ProjectProcessFramework::where('project_id', $request->project_id)
+    //                     ->where('level_no', '!=', $appointment->level1id)
+    //                     ->select('proj_process_framework_id', 'level_name', 'level_no')
+    //                     ->get()
+    //                     ->toArray();
+
+    //                 foreach ($levels as $level) {
+    //                     $levelKey = strtolower(str_replace(' ', '_', $level['level_name']));
+    //                     $row[$levelKey] = 0;
+    //                 }
+    //             }
+
+    //             $row['priority'] = $appointment->priority_term ?? '-';
+    //             $row['progress'] = ($appointment->progress ?? '0') . '%';
+
+    //             $row['action'] = '<a href="/edit/' . $appointment->process_id . '" class="btn btn-sm btn-primary">Edit</a>';
+
+    //             $data_arr[] = $row;
+    //         }
+
+    //         return response()->json([
+    //     $data_arr    ]);
+
+    //         $response = array(
+    //             "draw" => (int)$request->input('draw'),
+    //             "recordsTotal" => (int)$recordsTotal,
+    //             "recordsFiltered" => (int)$recordsFiltered,
+    //             "data" => $data_arr
+    //         );
+
+    //         return response()->json($response, 200);
+     
+
+    // }
+
+    public function level_json_data(Request $request)
+    {
+        $main_query = ProcessMapping::from('prj_processmaping as processmaping')
+            ->where('project_id', $request->project_id)
+            ->join('mst_miaagents as mia', 'mia.mia_agent_id', '=', 'processmaping.mia_id')
+            ->join('mst_employee as employee', 'employee.employee_id', '=', 'processmaping.employee_id');
+
+        if ($request->level_no == '1') {
+            $main_query->where('level1id', $request->proj_process_framework_id);
+        }
+
+        // Get records
+        $appointments = $main_query->select(
+            'processmaping.process_id',
+            'processmaping.processname',
+            'mia.nameofagent',
+            'mia.agentpersonafile',
+            'employee.display_name as employee_name',
+            'processmaping.priority_term',
+            'processmaping.progress',
+            'processmaping.level1id'
+        )->get();
+
+        // Get dynamic levels
+        $dynamicLevels = [];
+        if ($request->level_no == '1') {
+            $dynamicLevels = ProjectProcessFramework::where('project_id', $request->project_id)
+                ->where('level_no', '!=', $request->level_no)
+                ->select('proj_process_framework_id', 'level_name', 'level_no')
+                ->get()
+                ->toArray();
+        }
+
+        // Build response array
+        $data_arr = [];
+
+        foreach ($appointments as $appointment) {
+            $row = [];
+
+            // Fixed columns
+            $row['id'] = $appointment->process_id;
+            $row['processname'] = $appointment->processname ?? '';
+            $row['ceo'] = ''; // You can add real logic if needed
+            $row['mia'] = $appointment->nameofagent ?? '';
+
+            // Dynamic levels initialized to 0
+            foreach ($dynamicLevels as $level) {
+                $levelKey = strtolower(str_replace(' ', '_', $level['level_name']));
+                $row[$levelKey] = 0;
+            }
+
+            // Additional fields
+            $row['priority'] = $appointment->priority_term ?? '-';
+            $row['progress'] = ($appointment->progress ?? '0') . '%';
+            $row['action'] = '<a href="/edit/' . $appointment->process_id . '" class="btn btn-sm btn-primary">Edit</a>';
+
+            $data_arr[] = $row;
+        }
+
+        return response()->json([
+            'data' => $data_arr
+        ]);
+    }
+
+
 }

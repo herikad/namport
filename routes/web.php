@@ -240,6 +240,7 @@ Route::group(['middleware' => 'auth'], function () {
         // Route::post('/status/update', [DesignationController::class, 'status_update'])->name('status_update');
 
         Route::post('level_1_store', [ProjectController::class, 'level_1_store'])->name('level_1_store');
+        Route::get('level_json_data', [ProjectController::class, 'level_json_data'])->name('level_json_data');
 
     });
 

@@ -79,7 +79,8 @@ $(document).ready(function () {
                 $('#categoryForm')[0].reset(); 
                 $('#fileInput').val('');
                 $('#previewArea').empty(); 
-                $('#myModal').modal('hide');
+                $('#addCategoryModal').modal('hide');
+                $('#categoryTable').DataTable().ajax.reload();
             },
             error: function (xhr) {
                 let msg = xhr.responseJSON?.message || 'Something went wrong';
@@ -136,7 +137,6 @@ $(document).ready(function () {
       { data: 'mia' },
   ];
 
-  // Inject dynamic columns
   if (Array.isArray(window.dynamicColumns)) {
       window.dynamicColumns.forEach(col => {
           columns.push({ data: col });
@@ -153,6 +153,7 @@ $(document).ready(function () {
 $('#categoryTable').DataTable({
     processing: true,
     serverSide: false,
+    ordering: false,
     ajax: {
         url: baseUrl + 'project/level_json_data',
         type: 'GET',

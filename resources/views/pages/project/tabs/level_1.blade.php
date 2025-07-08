@@ -66,7 +66,7 @@
 
 <!-- Table Design -->
 <div class="table-responsive">
-    <table class="table table-hover align-middle table-bordered shadow-sm" id="categoryTable">
+    <table class="table add-rows" id="categoryTable">
       <thead class="table-light">
           <tr class="align-middle text-center">
               <th scope="col" style="width: 50px;">#</th>
@@ -142,7 +142,7 @@
                       @endphp
                     @if(isset($teams->clientContact->last_name) || isset($teams->clientContact->first_name))
                     <label class="border rounded p-2 bg-white d-flex align-items-center" style="min-width: 220px; cursor: pointer;">
-                      <input type="checkbox" class="form-check-input me-2" name="teamids[]" value="{{$teams->teamid}}">
+                      <input type="checkbox" class="form-check-input me-2" name="teamids[]" value="{{$teams->association_id}}">
                       <img src="{{$clientImage}}" class="rounded-circle me-2" width="32" height="32">
                       <div>
                         

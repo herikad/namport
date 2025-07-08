@@ -388,77 +388,77 @@ class Helpers
         }
     }
 
-    // public static function upload_file($file = "", $file_name = "", $file_name_to_store = "", $file_uploaded_path = "", $is_base64_file = false)
-    // {
-    //     $file_path = false;
+    public static function upload_file_with_path($file = "", $file_name = "", $file_name_to_store = "", $file_uploaded_path = "", $is_base64_file = false)
+    {
+        $file_path = false;
 
-    //     try {
+        try {
 
-    //         $default_storage = config('filesystems.default');
+            $default_storage = config('filesystems.default');
 
-    //         $default_storage_driver = config('filesystems.disks.' . $default_storage . '.driver');
+            $default_storage_driver = config('filesystems.disks.' . $default_storage . '.driver');
 
-    //         if ($is_base64_file == false) {
+            if ($is_base64_file == false) {
 
-    //             $file_name = $file->getClientOriginalName();
+                $file_name = $file->getClientOriginalName();
 
-    //         }
+            }
 
-    //         if ($is_base64_file == true) {
+            if ($is_base64_file == true) {
 
-    //             $file_parts = explode(";base64,", $file);
-    //             $base64_file_content = base64_decode($file_parts[1]);
-    //         }
+                $file_parts = explode(";base64,", $file);
+                $base64_file_content = base64_decode($file_parts[1]);
+            }
 
-    //         $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
 
-    //         $base_name = basename($file_name, "." . $file_extension);
+            $base_name = basename($file_name, "." . $file_extension);
 
-    //         $file_name_to_store = $file_name_to_store . '.' . $file_extension;
+            $file_name_to_store = $file_name_to_store . '.' . $file_extension;
 
-    //         if ($default_storage == 'public' || $default_storage == 'local') {
+            if ($default_storage == 'public' || $default_storage == 'local') {
 
-    //             if (!File::isDirectory($file_uploaded_path)) {
-    //                 File::makeDirectory($file_uploaded_path, 0777, true, true);
-    //             }
-    //         }
+                if (!File::isDirectory($file_uploaded_path)) {
+                    File::makeDirectory($file_uploaded_path, 0777, true, true);
+                }
+            }
 
-    //         $cloudResponse = false;
+            $cloudResponse = false;
 
-    //         if ($is_base64_file == false) {
+            if ($is_base64_file == false) {
 
-    //             $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, file_get_contents($file->getRealPath()), 'public');
+                $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, file_get_contents($file->getRealPath()), 'public');
 
-    //         } else {
+            } else {
 
-    //             $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, $base64_file_content, 'public');
+                $cloudResponse = Storage::disk($default_storage_driver)->put($file_uploaded_path . '/' . $file_name_to_store, $base64_file_content, 'public');
 
-    //         }
+            }
 
-    //         $file_path = $file_uploaded_path . '/' . $file_name_to_store;
+            $file_path = $file_uploaded_path . '/' . $file_name_to_store;
 
-    //         if ($cloudResponse) {
+            if ($cloudResponse) {
 
-    //             if ($default_storage_driver != 'public') {
+                if ($default_storage_driver != 'public') {
 
-    //                 $cloudFileUrl = Storage::url($file_path);
+                    $cloudFileUrl = Storage::url($file_path);
 
-    //                 $file_path = $cloudFileUrl;
+                    $file_path = $cloudFileUrl;
 
-    //             }
+                }
 
-    //         }
+            }
 
-    //         Log::info("file_path success " . $file_path);
+            Log::info("file_path success " . $file_path);
 
-    //         return $file_path;
+            return $file_path;
 
-    //     } catch (\Throwable $th) {
-    //         Log::info("upload_file error " . print_r($th->getMessage(), true));
-    //         return $file_path;
-    //     }
+        } catch (\Throwable $th) {
+            Log::info("upload_file error " . print_r($th->getMessage(), true));
+            return $file_path;
+        }
 
-    // }
+    }
 
     //  this handles both S3 and local both for uploading the file.
     public static function upload_file($file, $name, $path)

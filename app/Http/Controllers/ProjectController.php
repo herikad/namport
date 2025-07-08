@@ -11,6 +11,7 @@ use App\Models\ProjectProcessFramework;
 use App\Models\ProjectTeam;
 use App\Models\ProcessMapping;
 use App\Models\MettingSchedules;
+use App\Models\MstAttachment;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -526,7 +527,6 @@ class ProjectController extends Controller
             $process->customer_id  = $project->customer_id;
             $process->workflow_id  = $request->workflow_id;
             $process->level1id  = $request->level1id;
-            $process->process_id  = $request->process_id;
             $process->processno  = $request->processno;
             $process->processname  = $request->processname;
             $process->processdetail  = $request->processdetail;
@@ -543,32 +543,28 @@ class ProjectController extends Controller
                 if ($request->hasFile('attachments')) {
                     foreach ($request->file('attachments') as $attachment) {
                         if ($attachment->isValid()) {
-                            $unique_name = 'attachment_' . rand(100, 9999) . time() . '.' . $attachment->getClientOriginalExtension();
+                            $unique_name = 'attachment_' . rand(100, 9999) . time();
 
-                            $path = \Helper::upload_file(
+                            $path = \Helper::upload_file_with_path(
                                 $attachment,
+                                $attachment->getClientOriginalExtension(),
                                 $unique_name,
                                 'uploads/attachments' 
                             );
 
-                            $uploaded_paths[] = $path; 
+                            // $uploaded_paths[] = $path; 
+                            $upload_file = new MstAttachment;
+                            $upload_file->association_id = $process->process_id;
+                            $upload_file->association_type_term = 'prj_processmaping';
+                            $upload_file->reference_type_id = $request->project_id;
+                            $upload_file->reference_type_term = 'prj_project';
+                            $upload_file->file_name = $unique_name;
+                            $upload_file->path = $path;
+                            $upload_file->save();
                         }
                     }
                 }
-                $process->attachments_id = json_encode($uploaded_paths);
-                $process->save();
             }
-
-            // if ($process) {
-            //     $meeting_schedules = new MettingSchedules;
-            //     $meeting_schedules->association_id = $process->id;
-            //     $meeting_schedules->association_type_term = "prj_processmaping";
-            //     $meeting_schedules->project_id  = $request->project_id;
-            //     $meeting_schedules->client_id  = $project->client_id;
-            //     $meeting_schedules->customer_id  = $project->customer_id;
-            //     $meeting_schedules->mia_agent_id  = $request->mia_id;
-            //     $meeting_schedules->save();
-            // }
 
             return response()->json([
                 'status' => 1,
@@ -719,8 +715,7 @@ class ProjectController extends Controller
     {
         $main_query = ProcessMapping::from('prj_processmaping as processmaping')
             ->where('project_id', $request->project_id)
-            ->join('mst_miaagents as mia', 'mia.mia_agent_id', '=', 'processmaping.mia_id')
-            ->join('mst_employee as employee', 'employee.employee_id', '=', 'processmaping.employee_id');
+            ->join('mst_miaagents as mia', 'mia.mia_agent_id', '=', 'processmaping.mia_id');
 
         if ($request->level_no == '1') {
             $main_query->where('level1id', $request->proj_process_framework_id);
@@ -732,7 +727,7 @@ class ProjectController extends Controller
             'processmaping.processname',
             'mia.nameofagent',
             'mia.agentpersonafile',
-            'employee.display_name as employee_name',
+            'processmaping.teamids',
             'processmaping.priority_term',
             'processmaping.progress',
             'processmaping.level1id'
@@ -751,25 +746,90 @@ class ProjectController extends Controller
         // Build response array
         $data_arr = [];
 
+        $project = Project::where('project_id', $request->project_id)->first();
+        $get_all_client_contacts =  ClientContacts::where('profile_status_term', config('custom.profile_status_term.completed'))
+                                    ->where('is_active', 1)
+                                    ->where('status_term', config('custom.status_term.active'))
+                                    ->select('client_contacts_id','display_name', 'profile_pic')
+                                    ->orderBy('display_name')
+                                    ->where('customer_id', $project->customer_id)
+                                    ->get()
+                                    ->keyBy('client_contacts_id');
+
         foreach ($appointments as $appointment) {
             $row = [];
+
+            $contact_ids = json_decode($appointment->teamids, true);
+           
+            $client_html = '';
+
+            $limit = 3;
+            $totalContacts = count($contact_ids);
+
+            if ($totalContacts > 0) {
+                $count = 0;
+                foreach ($contact_ids as $id) {
+                    $contact = $get_all_client_contacts[$id] ?? null;
+
+                    if ($contact && $count < $limit) {
+                        $profilePic = $contact['profile_pic'] ?? '';
+                        $displayName = $contact['display_name'] ?? 'No Name';
+
+                        if (!empty($profilePic) && config('filesystems.default') === 's3') {
+                            $clientImage = env('AWS_URL') . $profilePic;
+                        } elseif (!empty($profilePic)) {
+                            $clientImage = url('images/client_contact/profile' . $profilePic);
+                        } else {
+                            $clientImage = url('/no_image.jpg');
+                        }
+
+                        $client_html .= '<img src="' . $clientImage . '" title="' . e($displayName) . '" class="rounded-circle avatar-xs me-1" />';
+                        $count++;
+                    }
+                }
+
+                if ($totalContacts > $limit) {
+                    $client_html .= '<span class="rounded-circle avatar-xs bg-secondary text-white d-flex align-items-center justify-content-center">'
+                        . '+' . ($totalContacts - $limit) .
+                        '</span>';
+                }
+            }
 
             // Fixed columns
             $row['id'] = $appointment->process_id;
             $row['processname'] = $appointment->processname ?? '';
-            $row['ceo'] = ''; // You can add real logic if needed
-            $row['mia'] = $appointment->nameofagent ?? '';
+            $row['ceo'] = $client_html; 
+            $row['mia'] =  '<img src="' . $appointment->agentpersonafile . '" title="' . e($appointment->nameofagent) . '" class="rounded-circle avatar-xs me-1" />';
 
             // Dynamic levels initialized to 0
+            // foreach ($dynamicLevels as $level) {
+            //     $levelKey = strtolower(str_replace(' ', '_', $level['level_name']));
+            //     $row[$levelKey] = 0;
+            // }
+            $levelCounter = 0;
             foreach ($dynamicLevels as $level) {
                 $levelKey = strtolower(str_replace(' ', '_', $level['level_name']));
-                $row[$levelKey] = 0;
+
+                if ($levelCounter === 0) {
+                    // First dynamic level: show "+" icon
+                    $row[$levelKey] = '
+                    <div class="d-flex align-items-center gap-1">
+                        <span>0</span>
+                        <a href="javascript:void(0);" class="add-category-btn" data-process-id="' . $appointment->process_id . '">
+                            <i class="fas fa-plus-circle text-primary" title="Add"></i>
+                        </a>
+                    </div>';
+                } else {
+                    $row[$levelKey] = 0;
+                }
+
+                $levelCounter++;
             }
 
             // Additional fields
             $row['priority'] = $appointment->priority_term ?? '-';
             $row['progress'] = ($appointment->progress ?? '0') . '%';
-            $row['action'] = '<a href="/edit/' . $appointment->process_id . '" class="btn btn-sm btn-primary">Edit</a>';
+            $row['action'] = '<a href="#" class="btn btn-sm btn-primary">Edit</a>';
 
             $data_arr[] = $row;
         }

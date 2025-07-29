@@ -111,7 +111,7 @@ class ClientOnboardingController extends Controller
                 }
 
                 Storage::disk(config(key: 'filesystems.default'))->put(
-                    "voice_profiles/{$mp3Filename}",
+                    "images/client_contact/voice_profiles/{$mp3Filename}",
                     file_get_contents($mp3Path),
                     ['visibility' => 'public', 'ContentType' => 'audio/mpeg']
                 );
@@ -134,7 +134,7 @@ class ClientOnboardingController extends Controller
                 //         'ContentType' => 'audio/mpeg',
                 //     ]
                 // );
-                $relativePath = 'voice_profiles/' . $mp3Filename;
+                $relativePath = 'images/client_contact/voice_profiles/' . $mp3Filename;
 
                 // Clean up temp file
                 unlink($mp3Path);
